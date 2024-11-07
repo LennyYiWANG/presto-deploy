@@ -5,6 +5,7 @@ import { BrowserRouter, Routes, Route} from 'react-router-dom';
 
 import SignInForm from './components/SigninForm';
 import SignUpForm from './components/SignupForm';
+import WelcomePage from './components/WelcomePage';
 
 function App() {
   const [count, setCount] = useState(0);
@@ -13,7 +14,8 @@ function App() {
     <>
     <BrowserRouter>
     <Routes>
-      <Route path="/" element={<SignInForm/>}></Route>
+      <Route path="/" element={<WelcomePage/>}></Route>
+      <Route path="/login" element={<SignInForm/>}></Route>
       <Route path="/register" element={<SignUpForm/>}></Route>
     </Routes>
     </BrowserRouter>
