@@ -66,82 +66,94 @@ const SignUpForm = () => {
   };
 
   return (
-    <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#f5f5f5' }}>
-      <Box
-        sx={{
-          width: '100%',
-          maxWidth: 400,
-          backgroundColor: 'white',
-          padding: 4,
-          borderRadius: 2,
-          boxShadow: 3,
-          textAlign: 'center',
-        }}
+    <Box sx={{ position: 'relative', minHeight: '100vh', backgroundColor: '#f5f5f5' }}>
+      {/* Login Button */}
+      <Button
+        variant="outlined"
+        color="primary"
+        onClick={() => navigate('/login')}
+        sx={{ position: 'absolute', top: 16, right: 16 }}
       >
-        {/* Logo */}
-        <Box mb={2}>
-          <img src={logo} alt="Logo" style={{ width: '100px' }} />
-        </Box>
+        Login
+      </Button>
 
-        {/* Title */}
-        <Typography variant="h5" component="h1" mb={2}>
-          Create an Account
-        </Typography>
-
-        {/* Form */}
-        <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <TextField
-            label="Name"
-            variant="outlined"
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-            fullWidth
-          />
-          <TextField
-            label="Email"
-            variant="outlined"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            fullWidth
-          />
-          <TextField
-            label="Password"
-            variant="outlined"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            fullWidth
-          />
-          <TextField
-            label="Confirm Password"
-            variant="outlined"
-            type="password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            required
-            fullWidth
-          />
-          <Button type="submit" variant="contained" color="primary" fullWidth>
-            Register
-          </Button>
-        </Box>
-
-        {/* Snackbar for showing messages */}
-        <Snackbar
-          open={openSnackbar}
-          autoHideDuration={3000}
-          onClose={handleCloseSnackbar}
-          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
+        <Box
+          sx={{
+            width: '100%',
+            maxWidth: 400,
+            backgroundColor: 'white',
+            padding: 4,
+            borderRadius: 2,
+            boxShadow: 3,
+            textAlign: 'center',
+          }}
         >
-          <Alert onClose={handleCloseSnackbar} severity={severity} sx={{ width: '100%' }}>
-            {snackbarMessage}
-          </Alert>
-        </Snackbar>
+          {/* Logo */}
+          <Box mb={2}>
+            <img src={logo} alt="Logo" style={{ width: '100px' }} />
+          </Box>
+
+          {/* Title */}
+          <Typography variant="h5" component="h1" mb={2}>
+            Create an Account
+          </Typography>
+
+          {/* Form */}
+          <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <TextField
+              label="Name"
+              variant="outlined"
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              fullWidth
+            />
+            <TextField
+              label="Email"
+              variant="outlined"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              fullWidth
+            />
+            <TextField
+              label="Password"
+              variant="outlined"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              fullWidth
+            />
+            <TextField
+              label="Confirm Password"
+              variant="outlined"
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+              fullWidth
+            />
+            <Button type="submit" variant="contained" color="primary" fullWidth>
+              Register
+            </Button>
+          </Box>
+
+          {/* Snackbar for showing messages */}
+          <Snackbar
+            open={openSnackbar}
+            autoHideDuration={3000}
+            onClose={handleCloseSnackbar}
+            anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+          >
+            <Alert onClose={handleCloseSnackbar} severity={severity} sx={{ width: '100%' }}>
+              {snackbarMessage}
+            </Alert>
+          </Snackbar>
+        </Box>
       </Box>
     </Box>
   );
