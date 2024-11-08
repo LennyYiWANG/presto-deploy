@@ -6,7 +6,7 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
-import logo from '../assets/images/logo.png'; // 确保路径正确
+import logo from '../assets/images/logo_transparent.png'; // 确保路径正确
 
 const SignInForm = () => {
   const [email, setEmail] = useState('');
@@ -57,6 +57,16 @@ const SignInForm = () => {
 
   return (
     <Box sx={{ position: 'relative', minHeight: '100vh', backgroundColor: '#f5f5f5' }}>
+      {/* Logo in the top left corner */}
+      <Box sx={{ position: 'absolute', top: 16, left: 16 }}>
+        <img
+          src={logo}
+          alt="Logo"
+          style={{ width: '80px', cursor: 'pointer' }}
+          onClick={() => navigate('/')}
+        />
+      </Box>
+
       {/* Sign Up Button */}
       <Button
         variant="outlined"
@@ -79,11 +89,6 @@ const SignInForm = () => {
             textAlign: 'center',
           }}
         >
-          {/* Logo */}
-          <Box mb={2}>
-            <img src={logo} alt="Logo" style={{ width: '100px' }} />
-          </Box>
-
           {/* Title */}
           <Typography variant="h5" component="h1" mb={2}>
             Welcome back!
