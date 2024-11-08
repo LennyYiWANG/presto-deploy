@@ -56,74 +56,86 @@ const SignInForm = () => {
   };
 
   return (
-    <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#f5f5f5' }}>
-      <Box
-        sx={{
-          width: '100%',
-          maxWidth: 400,
-          backgroundColor: 'white',
-          padding: 4,
-          borderRadius: 2,
-          boxShadow: 3,
-          textAlign: 'center',
-        }}
+    <Box sx={{ position: 'relative', minHeight: '100vh', backgroundColor: '#f5f5f5' }}>
+      {/* Sign Up Button */}
+      <Button
+        variant="outlined"
+        color="primary"
+        onClick={() => navigate('/register')}
+        sx={{ position: 'absolute', top: 16, right: 16 }}
       >
-        {/* Logo */}
-        <Box mb={2}>
-          <img src={logo} alt="Logo" style={{ width: '100px' }} />
-        </Box>
+        Sign Up
+      </Button>
 
-        {/* Title */}
-        <Typography variant="h5" component="h1" mb={2}>
-          Welcome back!
-        </Typography>
-        <Typography variant="body2" color="textSecondary" mb={2}>
-          Let's get you signed in
-        </Typography>
-
-        {/* Form */}
-        <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <TextField
-            label="Email"
-            variant="outlined"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            fullWidth
-          />
-          <TextField
-            label="Password"
-            variant="outlined"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            fullWidth
-          />
-          <Button type="submit" variant="contained" color="primary" fullWidth>
-            Log in
-          </Button>
-        </Box>
-
-        {/* Additional links */}
-        <Box mt={2}>
-          <Typography variant="body2" color="textSecondary">
-            Forgot your password? <Button size="small">Contact support</Button>
-          </Typography>
-        </Box>
-
-        {/* Snackbar for showing messages */}
-        <Snackbar
-          open={openSnackbar}
-          autoHideDuration={3000}
-          onClose={handleCloseSnackbar}
-          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
+        <Box
+          sx={{
+            width: '100%',
+            maxWidth: 400,
+            backgroundColor: 'white',
+            padding: 4,
+            borderRadius: 2,
+            boxShadow: 3,
+            textAlign: 'center',
+          }}
         >
-          <Alert onClose={handleCloseSnackbar} severity={severity} sx={{ width: '100%' }}>
-            {snackbarMessage}
-          </Alert>
-        </Snackbar>
+          {/* Logo */}
+          <Box mb={2}>
+            <img src={logo} alt="Logo" style={{ width: '100px' }} />
+          </Box>
+
+          {/* Title */}
+          <Typography variant="h5" component="h1" mb={2}>
+            Welcome back!
+          </Typography>
+          <Typography variant="body2" color="textSecondary" mb={2}>
+            Let's get you signed in
+          </Typography>
+
+          {/* Form */}
+          <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <TextField
+              label="Email"
+              variant="outlined"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              fullWidth
+            />
+            <TextField
+              label="Password"
+              variant="outlined"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              fullWidth
+            />
+            <Button type="submit" variant="contained" color="primary" fullWidth>
+              Log in
+            </Button>
+          </Box>
+
+          {/* Additional links */}
+          <Box mt={2}>
+            <Typography variant="body2" color="textSecondary">
+              Forgot your password? <Button size="small">Contact support</Button>
+            </Typography>
+          </Box>
+
+          {/* Snackbar for showing messages */}
+          <Snackbar
+            open={openSnackbar}
+            autoHideDuration={3000}
+            onClose={handleCloseSnackbar}
+            anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+          >
+            <Alert onClose={handleCloseSnackbar} severity={severity} sx={{ width: '100%' }}>
+              {snackbarMessage}
+            </Alert>
+          </Snackbar>
+        </Box>
       </Box>
     </Box>
   );
