@@ -7,6 +7,7 @@ import SignInForm from './components/SigninForm';
 import SignUpForm from './components/SignupForm';
 import WelcomePage from './components/WelcomePage';
 import Logout from './components/Logout';
+import Dashboard from './components/Dashboard';
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem('token'));
@@ -26,7 +27,7 @@ function App() {
     <Route path="/" element={<WelcomePage />} />
     <Route path="/login" element={<SignInForm setToken={setToken} />} />
     <Route path="/register" element={<SignUpForm setToken={setToken} />} />
-      {/* <Route path="/dashboard" element={<div>Dashboard Page</div>} /> */}
+    <Route path="/dashboard" element={<Dashboard setToken={setToken} />} />
     </Routes>
     </BrowserRouter>
     </>

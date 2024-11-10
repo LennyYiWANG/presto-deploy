@@ -18,7 +18,7 @@ const Logout = ({ token, setToken, userName }) => {
   }
 
   return (
-    <AppBar position="fixed" sx={{ backgroundColor: '#d7e2f1', padding: '0.5rem 0' }}>
+    <AppBar position="fixed" sx={{ backgroundColor: '#d7e2f1', padding: '0.5rem 0', zIndex: 1000 }}>
       <Container maxWidth="lg">
         <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
           {/* Logo */}
