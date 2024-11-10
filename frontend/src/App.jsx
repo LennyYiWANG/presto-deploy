@@ -23,14 +23,14 @@ function App() {
     {/* <Logout/> */}
     <Logout token={token} setToken={setToken} />
     <Routes>
-      <Route path="/" element={<WelcomePage/>}></Route>
-      <Route path="/login" element={<SignInForm/>}></Route>
-      <Route path="/register" element={<SignUpForm/>}></Route>
+    <Route path="/" element={<WelcomePage />} />
+    <Route path="/login" element={<SignInForm setToken={setToken} />} />
+    <Route path="/register" element={<SignUpForm setToken={setToken} />} />
       {/* <Route path="/dashboard" element={<div>Dashboard Page</div>} /> */}
     </Routes>
     </BrowserRouter>
     </>
-  )
+  );
 }
 
 export default App;

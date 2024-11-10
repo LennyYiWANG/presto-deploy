@@ -8,7 +8,7 @@ import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import logo from '../assets/images/logo_transparent.png'; // 确保路径正确
 
-const SignUpForm = () => {
+const SignUpForm = ({ setToken }) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -42,17 +42,22 @@ const SignUpForm = () => {
         const data = await response.json();
         const token = data.token; // 从响应中获取 `token`
         localStorage.setItem('token', token); // 将 `token` 存储在本地存储中
-        setToken(token);
-      
         setSeverity('success');
         setSnackbarMessage('Registration successful! Redirecting...');
         setOpenSnackbar(true);
         setTimeout(() => {
-          navigate('/dashboard');
-        }, 1500);
+            setToken(token); // 延迟设置 token
+            navigate('/dashboard');
+          }, 1500);
       } else if (response.status === 400) {
-        setSeverity('error');
-        setSnackbarMessage('Invalid input. Please check your details and try again.');
+        const errorData = await response.json();
+        if (errorData.error === 'Email address already registered') {
+          setSeverity('error');
+          setSnackbarMessage('Email address already registered. Please use a different email.');
+        } else {
+          setSeverity('error');
+          setSnackbarMessage('Invalid input. Please check your details and try again.');
+        }
         setOpenSnackbar(true);
       } else {
         setSeverity('error');

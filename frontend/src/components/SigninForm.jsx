@@ -8,7 +8,7 @@ import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import logo from '../assets/images/logo_transparent.png'; // 确保路径正确
 
-const SignInForm = () => {
+const SignInForm = ({ setToken }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [openSnackbar, setOpenSnackbar] = useState(false);
@@ -26,19 +26,19 @@ const SignInForm = () => {
         },
         body: JSON.stringify({ email, password }),
       });
-
+      //console.log('Response:', response);
       if (response.ok) {
         const data = await response.json();
+        // console.log('Data:', data);
         const token = data.token; // 从响应中获取 `token`
-        localStorage.setItem('token', token); // 将 `token` 存储在本地存储中
-        setToken(token);
-      
+        localStorage.setItem('token', token); // 将 `token` 存储在本地存储中     
         setSeverity('success');
         setSnackbarMessage('Login successful! Redirecting...');
         setOpenSnackbar(true);
         setTimeout(() => {
-          navigate('/dashboard');
-        }, 1500);
+            setToken(token); // 延迟设置 token
+            navigate('/dashboard');
+          }, 1500); 
       } else if (response.status === 400) {
         setSeverity('error');
         setSnackbarMessage('Invalid input. Please check your email and password.');
@@ -49,6 +49,9 @@ const SignInForm = () => {
         setOpenSnackbar(true);
       }
     } catch (error) {
+
+      console.error('Error during login:', error);
+
       setSeverity('error');
       setSnackbarMessage('An unexpected error occurred. Please try again.');
       setOpenSnackbar(true);
