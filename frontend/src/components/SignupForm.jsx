@@ -39,6 +39,11 @@ const SignUpForm = () => {
       });
 
       if (response.ok) {
+        const data = await response.json();
+        const token = data.token; // 从响应中获取 `token`
+        localStorage.setItem('token', token); // 将 `token` 存储在本地存储中
+        setToken(token);
+      
         setSeverity('success');
         setSnackbarMessage('Registration successful! Redirecting...');
         setOpenSnackbar(true);
