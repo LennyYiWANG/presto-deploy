@@ -11,6 +11,7 @@ const PresentationEditor = () => {
   const { id } = useParams();
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [openEditTitleModal, setOpenEditTitleModal] = useState(false);
+  const [openErrorModal, setOpenErrorModal] = useState(false);
   const [title, setTitle] = useState('');
   const [slides, setSlides] = useState([]);
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
@@ -29,6 +30,48 @@ const PresentationEditor = () => {
   const handleCloseDelete = () => setOpenDeleteModal(false);
   const handleOpenEditTitle = () => setOpenEditTitleModal(true);
   const handleCloseEditTitle = () => setOpenEditTitleModal(false);
+  const handleOpenError = () => setOpenErrorModal(true);
+  const handleCloseError = () => setOpenErrorModal(false);
+
+  const handleDeleteSlide = () => {
+    if (slides.length === 1) {
+      // If only one slide exists, prompt the user to delete the entire presentation
+      handleOpenError();
+      return;
+    }
+
+    const updatedSlides = slides.filter((_, index) => index !== currentSlideIndex);
+    setSlides(updatedSlides);
+
+    setCurrentSlideIndex(Math.max(currentSlideIndex - 1, 0));
+
+    // Update the slides in the database
+    getStore()
+      .then((data) => {
+        if (data.store && data.store[id]) {
+          data.store[id].slides = updatedSlides;
+        }
+
+        const userToken = localStorage.getItem('token');
+        const url = 'http://localhost:5005/store';
+
+        return fetch(url, {
+          method: 'PUT',
+          headers: {
+            'Content-type': 'application/json',
+            Authorization: `Bearer ${userToken}`,
+          },
+          body: JSON.stringify({ store: data.store }),
+        });
+      })
+      .then((response) => {
+        if (!response.ok) throw new Error('Failed to delete the slide.');
+        console.log("Slide deleted successfully!");
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  };
 
   const handleDelete = () => {
     getStore()
@@ -228,10 +271,39 @@ const PresentationEditor = () => {
         </Box>
       </Modal>
 
+      <Modal open={openErrorModal} onClose={handleCloseError} aria-labelledby="error-modal">
+        <Box sx={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: 400,
+          bgcolor: 'background.paper',
+          border: '2px solid #000',
+          boxShadow: 24,
+          p: 4,
+        }}>
+          <Typography variant="h6" component="h2">
+            Cannot delete the only slide.
+          </Typography>
+          <Typography sx={{ mt: 2 }}>
+            To delete this presentation, please click the icon next to the title.
+          </Typography>
+          <Box mt={2} display="flex" justifyContent="flex-end">
+            <Button variant="contained" onClick={handleCloseError}>
+              OK
+            </Button>
+          </Box>
+        </Box>
+      </Modal>
+
       <div style={{ width: '100%', height: '500px', border: '1px solid black', marginTop: '1rem', position: 'relative' }}>
         <Typography variant="h5" align="center">
           Slide {currentSlideIndex + 1} of {slides.length}
         </Typography>
+        <Button onClick={handleDeleteSlide} variant="contained" color="error" sx={{ position: 'absolute', bottom: '10px', right: '10px' }}>
+          Delete Slide
+        </Button>
       </div>
 
       <Box display="flex" justifyContent="center" sx={{ mt: 2 }}>
