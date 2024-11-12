@@ -298,13 +298,34 @@ const PresentationEditor = () => {
       </Modal>
 
       <div style={{ width: '100%', height: '500px', border: '1px solid black', marginTop: '1rem', position: 'relative' }}>
-        <Typography variant="h5" align="center">
+        {/* <Typography variant="h5" align="center">
           Slide {currentSlideIndex + 1} of {slides.length}
-        </Typography>
+        </Typography> */}
         <Button onClick={handleDeleteSlide} variant="contained" color="error" sx={{ position: 'absolute', bottom: '10px', right: '10px' }}>
           Delete Slide
         </Button>
+        
+        <Box
+            sx={{
+                position: 'absolute',
+                bottom: '10px',
+                left: '10px',
+                width: '50px',
+                height: '50px',
+                backgroundColor: 'rgba(0, 0, 0, 0.5)', // 半透明背景
+                color: 'white',
+                fontSize: '1em',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: '5px',
+            }}
+        >
+            {currentSlideIndex + 1}
+        </Box>
       </div>
+
+      
 
       <Box display="flex" justifyContent="center" sx={{ mt: 2 }}>
         <IconButton
