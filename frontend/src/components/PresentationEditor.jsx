@@ -1,25 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Box, Modal, Typography, Button } from "@mui/material";
+import { Box, Modal, Typography, Button, IconButton, TextField } from "@mui/material";
+import EditIcon from '@mui/icons-material/Edit';
 import { getStore } from './DataProvide';
 
 const PresentationEditor = () => {
-  const { id } = useParams(); // 获取id参数
+  const { id } = useParams();
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
+  const [openEditTitleModal, setOpenEditTitleModal] = useState(false);
+  const [title, setTitle] = useState('');
   const navigate = useNavigate();
 
-//   console.log("Presentation ID:", id); // 检查是否正确获取到ID
+  useEffect(() => {
+    // Fetch current title for the presentation based on id
+    getStore().then(data => {
+      if (data.store && data.store[id]) {
+        setTitle(data.store[id].title || 'Untitled');
+      }
+    });
+  }, [id]);
 
-  const handleOpen = () => setOpenDeleteModal(true);
-  const handleClose = () => setOpenDeleteModal(false);
+  const handleOpenDelete = () => setOpenDeleteModal(true);
+  const handleCloseDelete = () => setOpenDeleteModal(false);
+  const handleOpenEditTitle = () => setOpenEditTitleModal(true);
+  const handleCloseEditTitle = () => setOpenEditTitleModal(false);
 
-  // 删除演示文稿并返回到仪表板
   const handleDelete = () => {
     getStore()
       .then((data) => {
-        // 删除指定 ID 的演示文稿
         delete data.store[id];
-
         const userToken = localStorage.getItem('token');
         const url = 'http://localhost:5005/store';
 
@@ -35,7 +44,36 @@ const PresentationEditor = () => {
       .then((response) => {
         if (!response.ok) throw new Error('Failed to update the presentation.');
         console.log(`Presentation with ID ${id} deleted`);
-        navigate('/dashboard'); // 删除后返回到仪表板
+        navigate('/dashboard');
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  };
+
+  const handleSaveTitle = () => {
+    getStore()
+      .then((data) => {
+        if (data.store && data.store[id]) {
+          data.store[id].title = title;
+        }
+        
+        const userToken = localStorage.getItem('token');
+        const url = 'http://localhost:5005/store';
+
+        return fetch(url, {
+          method: 'PUT',
+          headers: {
+            'Content-type': 'application/json',
+            Authorization: `Bearer ${userToken}`,
+          },
+          body: JSON.stringify({ store: data.store }),
+        });
+      })
+      .then((response) => {
+        if (!response.ok) throw new Error('Failed to save the title.');
+        console.log(`Presentation with ID ${id} title updated to ${title}`);
+        handleCloseEditTitle();
       })
       .catch((error) => {
         console.error("Error:", error);
@@ -44,21 +82,26 @@ const PresentationEditor = () => {
 
   return (
     <div style={{ marginTop: '5rem' }}>
-      <Typography variant="h4" component="h1">
-        Editing Presentation: {id}
-      </Typography>
+      <Box display="flex" alignItems="center">
+        <Typography variant="h4" component="h1">
+          {title}
+        </Typography>
+        <IconButton onClick={handleOpenEditTitle} aria-label="edit title" sx={{ ml: 1 }}>
+          <EditIcon />
+        </IconButton>
+      </Box>
       <Button variant="contained" color="secondary" onClick={() => navigate('/dashboard')}>
         Back
       </Button>
-      <Button variant="contained" color="error" onClick={handleOpen}>
+      <Button variant="contained" color="error" onClick={handleOpenDelete}>
         Delete Presentation
       </Button>
 
+      {/* Edit Title Modal */}
       <Modal
-        open={openDeleteModal}
-        onClose={handleClose}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
+        open={openEditTitleModal}
+        onClose={handleCloseEditTitle}
+        aria-labelledby="edit-title-modal"
       >
         <Box sx={{
           position: 'absolute',
@@ -71,14 +114,53 @@ const PresentationEditor = () => {
           boxShadow: 24,
           p: 4,
         }}>
-          <Typography id="modal-modal-title" variant="h6" component="h2">
+          <Typography variant="h6" component="h2">
+            Edit Presentation Title
+          </Typography>
+          <TextField
+            fullWidth
+            label="Presentation Title"
+            variant="outlined"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            sx={{ mt: 2 }}
+          />
+          <Box mt={2} display="flex" justifyContent="flex-end">
+            <Button onClick={handleCloseEditTitle} sx={{ mr: 1 }}>
+              Cancel
+            </Button>
+            <Button variant="contained" color="primary" onClick={handleSaveTitle}>
+              Save
+            </Button>
+          </Box>
+        </Box>
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        open={openDeleteModal}
+        onClose={handleCloseDelete}
+        aria-labelledby="delete-confirmation-modal"
+      >
+        <Box sx={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: 400,
+          bgcolor: 'background.paper',
+          border: '2px solid #000',
+          boxShadow: 24,
+          p: 4,
+        }}>
+          <Typography variant="h6" component="h2">
             Are you sure?
           </Typography>
           <Box mt={2} display="flex" justifyContent="space-between">
             <Button variant="contained" color="error" onClick={handleDelete}>
               Yes
             </Button>
-            <Button variant="contained" onClick={handleClose}>
+            <Button variant="contained" onClick={handleCloseDelete}>
               No
             </Button>
           </Box>
