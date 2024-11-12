@@ -30,7 +30,12 @@ const Dashboard = () => {
     getStore()
       .then((data) => {
         const storeData = data.store && typeof data.store === 'object' ? data.store : {};
-        const newId = Object.keys(storeData).length + 1;
+        
+        // 找到现有ID中的最大值，然后加1
+        const maxId = Math.max(0, ...Object.keys(storeData).map(id => parseInt(id, 10)));
+        const newId = maxId + 1;
+
+        // 使用新生成的ID
         storeData[newId] = { title, description, slides: {} };
 
         const userToken = localStorage.getItem('token');
