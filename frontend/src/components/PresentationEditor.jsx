@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Box, Modal, Typography, Button, IconButton, TextField } from "@mui/material";
 import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import { getStore } from './DataProvide';
@@ -16,11 +17,10 @@ const PresentationEditor = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Fetch the presentation data based on ID
     getStore().then(data => {
       if (data.store && data.store[id]) {
         setTitle(data.store[id].title || 'Untitled');
-        setSlides(Array.isArray(data.store[id].slides) ? data.store[id].slides : []); // 确保 slides 为数组
+        setSlides(Array.isArray(data.store[id].slides) ? data.store[id].slides : []);
       }
     });
   }, [id]);
@@ -86,21 +86,19 @@ const PresentationEditor = () => {
   };
 
   const handleCreateSlide = () => {
-    // 确保 slides 是数组
-    const updatedSlides = [...(Array.isArray(slides) ? slides : []), {}]; // 添加新幻灯片
+    const updatedSlides = [...(Array.isArray(slides) ? slides : []), {}];
     setSlides(updatedSlides);
-    setCurrentSlideIndex(updatedSlides.length - 1); // 移动到新创建的幻灯片
-    
-    // 保存到数据库
+    setCurrentSlideIndex(updatedSlides.length - 1);
+
     getStore()
       .then((data) => {
         if (data.store && data.store[id]) {
-          data.store[id].slides = updatedSlides; // 更新数据库中的 slides 数据
+          data.store[id].slides = updatedSlides;
         }
-  
+
         const userToken = localStorage.getItem('token');
         const url = 'http://localhost:5005/store';
-  
+
         return fetch(url, {
           method: 'PUT',
           headers: {
@@ -141,23 +139,27 @@ const PresentationEditor = () => {
   }, [currentSlideIndex]);
 
   return (
-    <div style={{ marginTop: '5rem' }}>
-      <Box display="flex" alignItems="center">
-        <Typography variant="h4" component="h1">
+    <div style={{ marginTop: '5rem', position: 'relative' }}>
+      <Button 
+        variant="contained" 
+        color="secondary" 
+        onClick={() => navigate('/dashboard')} 
+        style={{ position: 'absolute', top: 0, left: 0 }}
+      >
+        Back
+      </Button>
+      <Box display="flex" alignItems="center" justifyContent="center" style={{ marginBottom: '1rem' }}>
+        <Typography variant="h4" component="h1" textAlign="center">
           {title}
         </Typography>
         <IconButton onClick={handleOpenEditTitle} aria-label="edit title" sx={{ ml: 1 }}>
           <EditIcon />
         </IconButton>
+        <IconButton onClick={handleOpenDelete} aria-label="delete presentation" color="error" sx={{ ml: 1 }}>
+          <DeleteIcon />
+        </IconButton>
       </Box>
-      <Button variant="contained" color="secondary" onClick={() => navigate('/dashboard')}>
-        Back
-      </Button>
-      <Button variant="contained" color="error" onClick={handleOpenDelete}>
-        Delete Presentation
-      </Button>
 
-      {/* Edit Title Modal */}
       <Modal
         open={openEditTitleModal}
         onClose={handleCloseEditTitle}
@@ -196,7 +198,6 @@ const PresentationEditor = () => {
         </Box>
       </Modal>
 
-      {/* Delete Confirmation Modal */}
       <Modal
         open={openDeleteModal}
         onClose={handleCloseDelete}
@@ -227,18 +228,13 @@ const PresentationEditor = () => {
         </Box>
       </Modal>
 
-      {/* Slide Area */}
-      <div style={{ width: '100%', height: '500px', border: '1px solid black', marginTop: '1rem' }}>
+      <div style={{ width: '100%', height: '500px', border: '1px solid black', marginTop: '1rem', position: 'relative' }}>
         <Typography variant="h5" align="center">
           Slide {currentSlideIndex + 1} of {slides.length}
         </Typography>
-        <Button onClick={handleCreateSlide} variant="contained" color="primary" sx={{ mt: 2 }}>
-          Add New Slide
-        </Button>
       </div>
 
-      {/* Slide Navigation Buttons */}
-      <Box display="flex" justifyContent="space-between" sx={{ mt: 2 }}>
+      <Box display="flex" justifyContent="center" sx={{ mt: 2 }}>
         <IconButton
           onClick={handlePreviousSlide}
           disabled={currentSlideIndex === 0}
@@ -246,6 +242,9 @@ const PresentationEditor = () => {
         >
           <ArrowBackIosIcon />
         </IconButton>
+        <Button onClick={handleCreateSlide} variant="contained" color="primary" sx={{ mx: 2 }}>
+          Add New Slide
+        </Button>
         <IconButton
           onClick={handleNextSlide}
           disabled={currentSlideIndex === slides.length - 1}
