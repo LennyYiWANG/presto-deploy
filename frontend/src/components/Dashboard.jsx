@@ -8,6 +8,7 @@ const Dashboard = () => {
   const [open, setOpen] = useState(false);
   const [presentations, setPresentations] = useState([]);
   const [presentationName, setPresentationName] = useState('');
+  const [description, setDescription] = useState(''); // 新增描述的状态
 
   const style = {
     position: 'absolute',
@@ -24,17 +25,13 @@ const Dashboard = () => {
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
-  const postNew = (title) => {
+  const postNew = (title, description) => {
     getStore()
       .then((data) => {
-        // 获取当前 store 数据，确保为对象类型
         const storeData = data.store && typeof data.store === 'object' ? data.store : {};
-        
-        // 使用自动增量的 ID 作为新演示文稿的键
         const newId = Object.keys(storeData).length + 1;
-        storeData[newId] = { "title": title, "slides": {} };
+        storeData[newId] = { "title": title, "description": description, "slides": {} };
   
-        // PUT 新数据到数据库
         const userToken = localStorage.getItem('token');
         const url = 'http://localhost:5005/store';
   
@@ -64,20 +61,10 @@ const Dashboard = () => {
   const handleCreatePresentation = () => {
     if (presentationName.trim() === '') return;
 
-    // 创建新的演示对象
-    const newPresentation = {
-      name: presentationName,
-      slides: [{}] // 默认情况下只有一个空白幻灯片
-    };
+    postNew(presentationName, description);
 
-    // 更新状态，添加新演示到本地的演示列表
-    setPresentations([...presentations, newPresentation]);
-
-    // 调用 postNew 将新演示发送到服务器
-    postNew(presentationName);
-
-    // 重置表单和关闭模态框
     setPresentationName('');
+    setDescription(''); // 重置描述
     handleClose();
   };
 
@@ -122,6 +109,14 @@ const Dashboard = () => {
             variant="outlined"
             value={presentationName}
             onChange={(e) => setPresentationName(e.target.value)}
+            sx={{ mt: 2 }}
+          />
+          <TextField // 添加描述的输入框
+            fullWidth
+            label="Description"
+            variant="outlined"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
             sx={{ mt: 2 }}
           />
           <Button
