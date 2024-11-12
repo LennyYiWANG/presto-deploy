@@ -6,26 +6,29 @@ import CardMedia from '@mui/material/CardMedia';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 
-export default function MediaCard() {
+export default function MediaCard({ name, description, thumbnail, slidesCount }) {
   return (
-    <Card sx={{ maxWidth: 345 }}>
+    <Card sx={{ width: '100%', aspectRatio: '2 / 1', minWidth: 100, display: 'flex' }}>
       <CardMedia
-        sx={{ height: 140 }}
-        image="/static/images/cards/contemplative-reptile.jpg"
-        title="green iguana"
+        sx={{ width: '50%', bgcolor: thumbnail ? 'transparent' : 'grey.400' }}
+        image={thumbnail || 'https://via.placeholder.com/150/cccccc?text=No+Image'} // 使用占位图像作为默认缩略图
+        title={name}
       />
-      <CardContent>
+      <CardContent sx={{ flex: 1 }}>
         <Typography gutterBottom variant="h5" component="div">
-          Lizard
+          {name}
         </Typography>
-        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-          Lizards are a widespread group of squamate reptiles, with over 6,000
-          species, ranging across all continents except Antarctica
+        {description && (
+          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+            {description}
+          </Typography>
+        )}
+        <Typography variant="body2" sx={{ mt: 1 }}>
+        Number of slides: {slidesCount}
         </Typography>
       </CardContent>
       <CardActions>
-        <Button size="small">Share</Button>
-        <Button size="small">Learn More</Button>
+        <Button size="small">Edit</Button>
       </CardActions>
     </Card>
   );

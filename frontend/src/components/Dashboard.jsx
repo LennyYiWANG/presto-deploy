@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from "@mui/material";
 import { Card, CardContent, Typography, Box, Modal, TextField } from "@mui/material";
 import { getStore } from './DataProvide';
+import MediaCard from './MediaCard';
 
 const Dashboard = () => {
   const [open, setOpen] = useState(false);
@@ -49,6 +50,7 @@ const Dashboard = () => {
       .then((res) => {
         if (res.ok) {
           console.log("Data updated successfully!");
+          fetchPresentations();
         } else {
           console.error("Failed to update data.");
         }
@@ -78,6 +80,25 @@ const Dashboard = () => {
     setPresentationName('');
     handleClose();
   };
+
+  const fetchPresentations = () => {
+    getStore()
+      .then((data) => {
+        const storeData = data.store && typeof data.store === 'object' ? data.store : {};
+        const presentationList = Object.values(storeData).map((item, index) => ({
+          name: item.title || `Presentation ${index + 1}`,
+          description: item.description || '',
+          thumbnail: item.thumbnail || '',
+          slidesCount: item.slides ? Object.keys(item.slides).length : 0,
+        }));
+        setPresentations(presentationList);
+      })
+      .catch((error) => console.error("获取演示数据失败:", error));
+  };
+
+  useEffect(() => {
+    fetchPresentations();
+  }, []);
 
   return (
     <div style={{ marginTop: '5rem' }}>
@@ -115,15 +136,17 @@ const Dashboard = () => {
         </Box>
       </Modal>
 
-      {/* 显示已创建的演示 */}
-      <Box mt={4}>
+      {/* 显示已创建的演示文稿列表 */}
+      <Box mt={4} display="flex" flexWrap="wrap" gap={2}>
         {presentations.map((presentation, index) => (
-          <Card key={index} sx={{ mb: 2 }}>
-            <CardContent>
-              <Typography variant="h6">{presentation.name}</Typography>
-              <Typography variant="body2">Slides: {presentation.slides.length}</Typography>
-            </CardContent>
-          </Card>
+          <Box key={index} width="45%">
+            <MediaCard
+              name={presentation.name}
+              description={presentation.description}
+              thumbnail={presentation.thumbnail}
+              slidesCount={presentation.slidesCount}
+            />
+          </Box>
         ))}
       </Box>
     </div>
