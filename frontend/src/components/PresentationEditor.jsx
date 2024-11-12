@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Box, Modal, Typography, Button, IconButton, TextField } from "@mui/material";
 import EditIcon from '@mui/icons-material/Edit';
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import { getStore } from './DataProvide';
 
 const PresentationEditor = () => {
@@ -9,13 +11,16 @@ const PresentationEditor = () => {
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [openEditTitleModal, setOpenEditTitleModal] = useState(false);
   const [title, setTitle] = useState('');
+  const [slides, setSlides] = useState([]);
+  const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Fetch current title for the presentation based on id
+    // Fetch the presentation data based on ID
     getStore().then(data => {
       if (data.store && data.store[id]) {
         setTitle(data.store[id].title || 'Untitled');
+        setSlides(Array.isArray(data.store[id].slides) ? data.store[id].slides : []); // 确保 slides 为数组
       }
     });
   }, [id]);
@@ -79,6 +84,61 @@ const PresentationEditor = () => {
         console.error("Error:", error);
       });
   };
+
+  const handleCreateSlide = () => {
+    // 确保 slides 是数组
+    const updatedSlides = [...(Array.isArray(slides) ? slides : []), {}]; // 添加新幻灯片
+    setSlides(updatedSlides);
+    setCurrentSlideIndex(updatedSlides.length - 1); // 移动到新创建的幻灯片
+    
+    // 保存到数据库
+    getStore()
+      .then((data) => {
+        if (data.store && data.store[id]) {
+          data.store[id].slides = updatedSlides; // 更新数据库中的 slides 数据
+        }
+  
+        const userToken = localStorage.getItem('token');
+        const url = 'http://localhost:5005/store';
+  
+        return fetch(url, {
+          method: 'PUT',
+          headers: {
+            'Content-type': 'application/json',
+            Authorization: `Bearer ${userToken}`,
+          },
+          body: JSON.stringify({ store: data.store }),
+        });
+      })
+      .then((response) => {
+        if (!response.ok) throw new Error('Failed to save the new slide.');
+        console.log("New slide saved successfully!");
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  };
+
+  const handleNextSlide = () => {
+    if (currentSlideIndex < slides.length - 1) {
+      setCurrentSlideIndex(currentSlideIndex + 1);
+    }
+  };
+
+  const handlePreviousSlide = () => {
+    if (currentSlideIndex > 0) {
+      setCurrentSlideIndex(currentSlideIndex - 1);
+    }
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'ArrowRight') handleNextSlide();
+      if (e.key === 'ArrowLeft') handlePreviousSlide();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [currentSlideIndex]);
 
   return (
     <div style={{ marginTop: '5rem' }}>
@@ -166,6 +226,34 @@ const PresentationEditor = () => {
           </Box>
         </Box>
       </Modal>
+
+      {/* Slide Area */}
+      <div style={{ width: '100%', height: '500px', border: '1px solid black', marginTop: '1rem' }}>
+        <Typography variant="h5" align="center">
+          Slide {currentSlideIndex + 1} of {slides.length}
+        </Typography>
+        <Button onClick={handleCreateSlide} variant="contained" color="primary" sx={{ mt: 2 }}>
+          Add New Slide
+        </Button>
+      </div>
+
+      {/* Slide Navigation Buttons */}
+      <Box display="flex" justifyContent="space-between" sx={{ mt: 2 }}>
+        <IconButton
+          onClick={handlePreviousSlide}
+          disabled={currentSlideIndex === 0}
+          color="primary"
+        >
+          <ArrowBackIosIcon />
+        </IconButton>
+        <IconButton
+          onClick={handleNextSlide}
+          disabled={currentSlideIndex === slides.length - 1}
+          color="primary"
+        >
+          <ArrowForwardIosIcon />
+        </IconButton>
+      </Box>
     </div>
   );
 };
