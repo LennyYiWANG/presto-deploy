@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Button } from "@mui/material";
-import { Card, CardContent, Typography, Box, Modal, TextField } from "@mui/material";
+import { Button, Box, Modal, TextField, Typography } from "@mui/material";
+import { useNavigate } from 'react-router-dom';
 import { getStore } from './DataProvide';
 import MediaCard from './MediaCard';
 
@@ -8,7 +8,8 @@ const Dashboard = () => {
   const [open, setOpen] = useState(false);
   const [presentations, setPresentations] = useState([]);
   const [presentationName, setPresentationName] = useState('');
-  const [description, setDescription] = useState(''); // 新增描述的状态
+  const [description, setDescription] = useState('');
+  const navigate = useNavigate();
 
   const style = {
     position: 'absolute',
@@ -30,11 +31,11 @@ const Dashboard = () => {
       .then((data) => {
         const storeData = data.store && typeof data.store === 'object' ? data.store : {};
         const newId = Object.keys(storeData).length + 1;
-        storeData[newId] = { "title": title, "description": description, "slides": {} };
-  
+        storeData[newId] = { title, description, slides: {} };
+
         const userToken = localStorage.getItem('token');
         const url = 'http://localhost:5005/store';
-  
+
         return fetch(url, {
           method: 'PUT',
           headers: {
@@ -56,15 +57,12 @@ const Dashboard = () => {
         console.error("Error:", error);
       });
   };
-  
 
   const handleCreatePresentation = () => {
     if (presentationName.trim() === '') return;
-
     postNew(presentationName, description);
-
     setPresentationName('');
-    setDescription(''); // 重置描述
+    setDescription('');
     handleClose();
   };
 
@@ -72,20 +70,25 @@ const Dashboard = () => {
     getStore()
       .then((data) => {
         const storeData = data.store && typeof data.store === 'object' ? data.store : {};
-        const presentationList = Object.values(storeData).map((item, index) => ({
-          name: item.title || `Presentation ${index + 1}`,
+        const presentationList = Object.entries(storeData).map(([id, item]) => ({
+          id,
+          name: item.title || `Presentation ${id}`,
           description: item.description || '',
           thumbnail: item.thumbnail || '',
           slidesCount: item.slides ? Object.keys(item.slides).length : 0,
         }));
         setPresentations(presentationList);
       })
-      .catch((error) => console.error("获取演示数据失败:", error));
+      .catch((error) => console.error("Failed to fetch presentations:", error));
   };
 
   useEffect(() => {
     fetchPresentations();
   }, []);
+
+  const handlePresentationClick = (id) => {
+    navigate(`/presentation/${id}`);
+  };
 
   return (
     <div style={{ marginTop: '5rem' }}>
@@ -111,7 +114,7 @@ const Dashboard = () => {
             onChange={(e) => setPresentationName(e.target.value)}
             sx={{ mt: 2 }}
           />
-          <TextField // 添加描述的输入框
+          <TextField
             fullWidth
             label="Description"
             variant="outlined"
@@ -131,10 +134,9 @@ const Dashboard = () => {
         </Box>
       </Modal>
 
-      {/* 显示已创建的演示文稿列表 */}
       <Box mt={4} display="flex" flexWrap="wrap" gap={2}>
-        {presentations.map((presentation, index) => (
-          <Box key={index} width="45%">
+        {presentations.map((presentation) => (
+          <Box key={presentation.id} width="45%" onClick={() => handlePresentationClick(presentation.id)}>
             <MediaCard
               name={presentation.name}
               description={presentation.description}

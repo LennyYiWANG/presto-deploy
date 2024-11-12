@@ -8,6 +8,7 @@ import SignUpForm from './components/SignupForm';
 import WelcomePage from './components/WelcomePage';
 import Logout from './components/Logout';
 import Dashboard from './components/Dashboard';
+import PresentationEditor from './components/PresentationEditor';
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem('token'));
@@ -28,6 +29,7 @@ function App() {
     <Route path="/login" element={<SignInForm setToken={setToken} />} />
     <Route path="/register" element={<SignUpForm setToken={setToken} />} />
     <Route path="/dashboard" element={<Dashboard setToken={setToken} />} />
+    <Route path="/presentation/:id" element={<PresentationEditor />} /> 
     </Routes>
     </BrowserRouter>
     </>

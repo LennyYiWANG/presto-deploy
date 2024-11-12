@@ -28,7 +28,7 @@ export default function MediaCard({ name, description, thumbnail, slidesCount })
         </Typography>
       </CardContent>
       <CardActions>
-        <Button size="small">Edit</Button>
+        {/* <Button size="small">Edit</Button> */}
       </CardActions>
     </Card>
   );
