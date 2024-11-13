@@ -12,22 +12,9 @@ const PresentationEditor = () => {
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [openEditTitleModal, setOpenEditTitleModal] = useState(false);
   const [openErrorModal, setOpenErrorModal] = useState(false);
-  const [openTextModal, setOpenTextModal] = useState(false);
   const [title, setTitle] = useState('');
   const [slides, setSlides] = useState([]);
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
-  const [selectedElement, setSelectedElement] = useState(null);
-  const [newText, setNewText] = useState({
-    width: 50,
-    height: 20,
-    content: '',
-    fontSize: 1,
-    color: '#000000',
-    x: 0,
-    y: 0,
-  });
-  const [isPositionEditable, setIsPositionEditable] = useState(false);
-
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -39,6 +26,20 @@ const PresentationEditor = () => {
     });
   }, [id]);
 
+  const [openTextModal, setOpenTextModal] = useState(false); // 新增，用于文本框编辑模态框的状态管理
+const [selectedElement, setSelectedElement] = useState(null); // 新增，当前选中的文本元素，用于编辑特定文本框
+const [newText, setNewText] = useState({
+  width: 50,
+  height: 20,
+  content: '',
+  fontSize: 1,
+  color: '#000000',
+  x: 0,
+  y: 0,
+}); // 新增，存储文本框的宽度、高度、内容、字体大小、颜色以及初始位置
+
+const [isPositionEditable, setIsPositionEditable] = useState(false); // 新增，用于控制位置编辑框显示（仅编辑模式）
+
   const handleOpenDelete = () => setOpenDeleteModal(true);
   const handleCloseDelete = () => setOpenDeleteModal(false);
   const handleOpenEditTitle = () => setOpenEditTitleModal(true);
@@ -48,11 +49,11 @@ const PresentationEditor = () => {
 
   const handleOpenTextModal = (element = null) => {
     if (element) {
-      setSelectedElement(element);
-      setNewText(element);
-      setIsPositionEditable(true); // 仅在编辑时允许位置编辑
+      setSelectedElement(element); // 如果传入了元素，设置为当前选中的文本框
+      setNewText(element); // 设置为已存在的文本框内容
+      setIsPositionEditable(true); // 启用位置编辑
     } else {
-      setSelectedElement(null);
+      setSelectedElement(null); // 没有传入元素则表示新增文本框
       setNewText({
         width: 50,
         height: 20,
@@ -61,23 +62,27 @@ const PresentationEditor = () => {
         color: '#000000',
         x: 0,
         y: 0,
-      });
-      setIsPositionEditable(false); // 新建时禁用位置编辑
+      }); // 初始化新文本框内容
+      setIsPositionEditable(false); // 禁用位置编辑
     }
-    setOpenTextModal(true);
+    setOpenTextModal(true); // 打开文本模态框
   };
-
-  const handleCloseTextModal = () => setOpenTextModal(false);
+  const handleCloseTextModal = () => setOpenTextModal(false); // 新增，关闭文本模态框
+  
 
   const handleDeleteSlide = () => {
     if (slides.length === 1) {
+      // If only one slide exists, prompt the user to delete the entire presentation
       handleOpenError();
       return;
     }
+
     const updatedSlides = slides.filter((_, index) => index !== currentSlideIndex);
     setSlides(updatedSlides);
+
     setCurrentSlideIndex(Math.max(currentSlideIndex - 1, 0));
 
+    // Update the slides in the database
     getStore()
       .then((data) => {
         if (data.store && data.store[id]) {
@@ -137,7 +142,7 @@ const PresentationEditor = () => {
         if (data.store && data.store[id]) {
           data.store[id].title = title;
         }
-
+        
         const userToken = localStorage.getItem('token');
         const url = 'http://localhost:5005/store';
 
@@ -161,7 +166,7 @@ const PresentationEditor = () => {
   };
 
   const handleCreateSlide = () => {
-    const updatedSlides = [...(Array.isArray(slides) ? slides : []), { textElements: [] }];
+    const updatedSlides = [...(Array.isArray(slides) ? slides : []), { textElements: [] }]; // 为新幻灯片初始化空的文本元素数组
     setSlides(updatedSlides);
     setCurrentSlideIndex(updatedSlides.length - 1);
 
@@ -204,31 +209,41 @@ const PresentationEditor = () => {
     }
   };
 
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'ArrowRight') handleNextSlide();
+      if (e.key === 'ArrowLeft') handlePreviousSlide();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [currentSlideIndex]);
+
+
   const handleAddOrUpdateText = () => {
     const updatedSlides = [...slides];
     if (selectedElement) {
       updatedSlides[currentSlideIndex].textElements = updatedSlides[currentSlideIndex].textElements.map(el => 
         el.id === selectedElement.id ? newText : el
-      );
+      ); // 更新选中元素的内容
     } else {
-      const newTextElement = { ...newText, id: Date.now(), x: 0, y: 0 }; // 新元素默认位置在左上角
+      const newTextElement = { ...newText, id: Date.now(), x: 0, y: 0 }; // 为新文本框设置唯一ID和默认位置
       updatedSlides[currentSlideIndex].textElements = [
         ...(updatedSlides[currentSlideIndex].textElements || []),
         newTextElement,
-      ];
+      ]; // 将新文本框添加到当前幻灯片的文本元素列表
     }
-    setSlides(updatedSlides);
+    setSlides(updatedSlides); // 更新幻灯片内容
     handleCloseTextModal();
-
+  
     getStore()
       .then((data) => {
         if (data.store && data.store[id]) {
           data.store[id].slides = updatedSlides;
         }
-
+  
         const userToken = localStorage.getItem('token');
         const url = 'http://localhost:5005/store';
-
+  
         return fetch(url, {
           method: 'PUT',
           headers: {
@@ -246,21 +261,21 @@ const PresentationEditor = () => {
         console.error("Error:", error);
       });
   };
-
+  
   const handleDeleteTextElement = (id) => {
     const updatedSlides = [...slides];
-    updatedSlides[currentSlideIndex].textElements = updatedSlides[currentSlideIndex].textElements.filter(el => el.id !== id);
+    updatedSlides[currentSlideIndex].textElements = updatedSlides[currentSlideIndex].textElements.filter(el => el.id !== id); // 从当前幻灯片的文本元素列表中移除选中的文本框
     setSlides(updatedSlides);
-
+  
     getStore()
       .then((data) => {
         if (data.store && data.store[id]) {
           data.store[id].slides = updatedSlides;
         }
-
+  
         const userToken = localStorage.getItem('token');
         const url = 'http://localhost:5005/store';
-
+  
         return fetch(url, {
           method: 'PUT',
           headers: {
@@ -278,6 +293,7 @@ const PresentationEditor = () => {
         console.error("Error:", error);
       });
   };
+  
 
   return (
     <div style={{ marginTop: '5rem', position: 'relative' }}>
@@ -305,10 +321,11 @@ const PresentationEditor = () => {
         Add Text Box
       </Button>
 
+
       <Modal
-        open={openTextModal}
-        onClose={handleCloseTextModal}
-        aria-labelledby="text-modal"
+        open={openEditTitleModal}
+        onClose={handleCloseEditTitle}
+        aria-labelledby="edit-title-modal"
       >
         <Box sx={{
           position: 'absolute',
@@ -321,98 +338,224 @@ const PresentationEditor = () => {
           boxShadow: 24,
           p: 4,
         }}>
-          <Typography variant="h6" component="h2">Add or Edit Text Box</Typography>
+          <Typography variant="h6" component="h2">
+            Edit Presentation Title
+          </Typography>
           <TextField
+            fullWidth
+            label="Presentation Title"
+            variant="outlined"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            sx={{ mt: 2 }}
+          />
+          <Box mt={2} display="flex" justifyContent="flex-end">
+            <Button onClick={handleCloseEditTitle} sx={{ mr: 1 }}>
+              Cancel
+            </Button>
+            <Button variant="contained" color="primary" onClick={handleSaveTitle}>
+              Save
+            </Button>
+          </Box>
+        </Box>
+      </Modal>
+
+      <Modal
+        open={openDeleteModal}
+        onClose={handleCloseDelete}
+        aria-labelledby="delete-confirmation-modal"
+      >
+        <Box sx={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: 400,
+          bgcolor: 'background.paper',
+          border: '2px solid #000',
+          boxShadow: 24,
+          p: 4,
+        }}>
+          <Typography variant="h6" component="h2">
+            Are you sure?
+          </Typography>
+          <Box mt={2} display="flex" justifyContent="space-between">
+            <Button variant="contained" color="error" onClick={handleDelete}>
+              Yes
+            </Button>
+            <Button variant="contained" onClick={handleCloseDelete}>
+              No
+            </Button>
+          </Box>
+        </Box>
+      </Modal>
+
+      <Modal open={openErrorModal} onClose={handleCloseError} aria-labelledby="error-modal">
+        <Box sx={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: 400,
+          bgcolor: 'background.paper',
+          border: '2px solid #000',
+          boxShadow: 24,
+          p: 4,
+        }}>
+          <Typography variant="h6" component="h2">
+            Cannot delete the only slide.
+          </Typography>
+          <Typography sx={{ mt: 2 }}>
+            To delete this presentation, please click the icon next to the title.
+          </Typography>
+          <Box mt={2} display="flex" justifyContent="flex-end">
+            <Button variant="contained" onClick={handleCloseError}>
+              OK
+            </Button>
+          </Box>
+        </Box>
+      </Modal>
+
+      <Modal
+        open={openTextModal}
+        onClose={handleCloseTextModal}
+        aria-labelledby="text-modal"
+        >
+        <Box sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: 400,
+            bgcolor: 'background.paper',
+            border: '2px solid #000',
+            boxShadow: 24,
+            p: 4,
+        }}>
+            <Typography variant="h6" component="h2">Add or Edit Text Box</Typography>
+            <TextField
             label="Text Content"
             fullWidth
             value={newText.content}
             onChange={(e) => setNewText({ ...newText, content: e.target.value })}
             sx={{ mt: 2 }}
-          />
-          <TextField
+            />
+            <TextField
             label="Width (%)"
             fullWidth
             type="number"
             value={newText.width}
             onChange={(e) => setNewText({ ...newText, width: e.target.value })}
             sx={{ mt: 2 }}
-          />
-          <TextField
+            />
+            <TextField
             label="Height (%)"
             fullWidth
             type="number"
             value={newText.height}
             onChange={(e) => setNewText({ ...newText, height: e.target.value })}
             sx={{ mt: 2 }}
-          />
-          <TextField
+            />
+            <TextField
             label="Font Size (em)"
             fullWidth
             type="number"
             value={newText.fontSize}
             onChange={(e) => setNewText({ ...newText, fontSize: e.target.value })}
             sx={{ mt: 2 }}
-          />
-          <TextField
+            />
+            <TextField
             label="Text Color (#hex)"
             fullWidth
             value={newText.color}
             onChange={(e) => setNewText({ ...newText, color: e.target.value })}
             sx={{ mt: 2 }}
-          />
-          {isPositionEditable && (
+            />
+            {isPositionEditable && (
             <>
-              <TextField
+                <TextField
                 label="X Position (%)"
                 fullWidth
                 type="number"
                 value={newText.x}
                 onChange={(e) => setNewText({ ...newText, x: e.target.value })}
                 sx={{ mt: 2 }}
-              />
-              <TextField
+                />
+                <TextField
                 label="Y Position (%)"
                 fullWidth
                 type="number"
                 value={newText.y}
                 onChange={(e) => setNewText({ ...newText, y: e.target.value })}
                 sx={{ mt: 2 }}
-              />
+                />
             </>
-          )}
-          <Button onClick={handleAddOrUpdateText} variant="contained" color="primary" sx={{ mt: 2 }}>
+            )}
+            <Button onClick={handleAddOrUpdateText} variant="contained" color="primary" sx={{ mt: 2 }}>
             Save Text
-          </Button>
+            </Button>
         </Box>
-      </Modal>
+        </Modal>
+
 
       <div style={{ width: '100%', height: '500px', border: '1px solid black', marginTop: '1rem', position: 'relative' }}>
+        {/* <Typography variant="h5" align="center">
+          Slide {currentSlideIndex + 1} of {slides.length}
+        </Typography> */}
+        <Button onClick={handleDeleteSlide} variant="contained" color="error" sx={{ position: 'absolute', bottom: '10px', right: '10px' }}>
+          Delete Slide
+        </Button>
+        
+        <Box
+            sx={{
+                position: 'absolute',
+                bottom: '10px',
+                left: '10px',
+                width: '50px',
+                height: '50px',
+                backgroundColor: 'rgba(0, 0, 0, 0.5)', // 半透明背景
+                color: 'white',
+                fontSize: '1em',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: '5px',
+            }}
+        >
+            {currentSlideIndex + 1}
+        </Box>
+
         {slides[currentSlideIndex]?.textElements?.map((element) => (
-          <Box
+        <Box
             key={element.id}
             sx={{
-              position: 'absolute',
-              top: `${element.y}%`,
-              left: `${element.x}%`,
-              width: `${element.width}%`,
-              height: `${element.height}%`,
-              fontSize: `${element.fontSize}em`,
-              color: element.color,
-              border: '1px solid lightgray',
-              padding: '4px',
-              cursor: 'pointer',
-              overflow: 'hidden',
+                position: 'absolute',
+                top: `${element.y}%`,
+                left: `${element.x}%`,
+                width: `${element.width}%`,
+                height: `${element.height}%`,
+                fontSize: `${element.fontSize}em`,
+                color: element.color,
+                border: '1px solid lightgray',
+                padding: '4px',
+                cursor: 'pointer',
+                overflow: 'hidden',
             }}
-            onDoubleClick={() => handleOpenTextModal(element)}
+            onDoubleClick={() => handleOpenTextModal(element)} // 双击编辑
             onContextMenu={(e) => {
-              e.preventDefault();
-              handleDeleteTextElement(element.id);
+                e.preventDefault();
+                handleDeleteTextElement(element.id); // 右键删除文本框
             }}
-          >
+            >
             {element.content}
-          </Box>
+        </Box>
         ))}
       </div>
+
+
+      
+
+      
 
       <Box display="flex" justifyContent="center" sx={{ mt: 2 }}>
         <IconButton
@@ -432,9 +575,6 @@ const PresentationEditor = () => {
         >
           <ArrowForwardIosIcon />
         </IconButton>
-        <Button onClick={handleDeleteSlide} variant="contained" color="error" sx={{ position: 'absolute', bottom: '10px', right: '10px' }}>
-          Delete Slide
-        </Button>
       </Box>
     </div>
   );
