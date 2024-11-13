@@ -16,6 +16,7 @@ const PresentationEditor = () => {
   const [title, setTitle] = useState('');
   const [slides, setSlides] = useState([]);
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
+  const [selectedElement, setSelectedElement] = useState(null);
   const [newText, setNewText] = useState({
     width: 50,
     height: 20,
@@ -25,6 +26,7 @@ const PresentationEditor = () => {
     x: 0,
     y: 0,
   });
+  const [isPositionEditable, setIsPositionEditable] = useState(false);
 
   const navigate = useNavigate();
 
@@ -43,7 +45,28 @@ const PresentationEditor = () => {
   const handleCloseEditTitle = () => setOpenEditTitleModal(false);
   const handleOpenError = () => setOpenErrorModal(true);
   const handleCloseError = () => setOpenErrorModal(false);
-  const handleOpenTextModal = () => setOpenTextModal(true);
+
+  const handleOpenTextModal = (element = null) => {
+    if (element) {
+      setSelectedElement(element);
+      setNewText(element);
+      setIsPositionEditable(true); // 仅在编辑时允许位置编辑
+    } else {
+      setSelectedElement(null);
+      setNewText({
+        width: 50,
+        height: 20,
+        content: '',
+        fontSize: 1,
+        color: '#000000',
+        x: 0,
+        y: 0,
+      });
+      setIsPositionEditable(false); // 新建时禁用位置编辑
+    }
+    setOpenTextModal(true);
+  };
+
   const handleCloseTextModal = () => setOpenTextModal(false);
 
   const handleDeleteSlide = () => {
@@ -181,16 +204,19 @@ const PresentationEditor = () => {
     }
   };
 
-  const handleAddText = () => {
-    const newTextElement = { ...newText, id: Date.now() };
+  const handleAddOrUpdateText = () => {
     const updatedSlides = [...slides];
-    updatedSlides[currentSlideIndex] = {
-      ...updatedSlides[currentSlideIndex],
-      textElements: [
+    if (selectedElement) {
+      updatedSlides[currentSlideIndex].textElements = updatedSlides[currentSlideIndex].textElements.map(el => 
+        el.id === selectedElement.id ? newText : el
+      );
+    } else {
+      const newTextElement = { ...newText, id: Date.now(), x: 0, y: 0 }; // 新元素默认位置在左上角
+      updatedSlides[currentSlideIndex].textElements = [
         ...(updatedSlides[currentSlideIndex].textElements || []),
         newTextElement,
-      ],
-    };
+      ];
+    }
     setSlides(updatedSlides);
     handleCloseTextModal();
 
@@ -221,21 +247,44 @@ const PresentationEditor = () => {
       });
   };
 
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === 'ArrowRight') handleNextSlide();
-      if (e.key === 'ArrowLeft') handlePreviousSlide();
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [currentSlideIndex]);
+  const handleDeleteTextElement = (id) => {
+    const updatedSlides = [...slides];
+    updatedSlides[currentSlideIndex].textElements = updatedSlides[currentSlideIndex].textElements.filter(el => el.id !== id);
+    setSlides(updatedSlides);
+
+    getStore()
+      .then((data) => {
+        if (data.store && data.store[id]) {
+          data.store[id].slides = updatedSlides;
+        }
+
+        const userToken = localStorage.getItem('token');
+        const url = 'http://localhost:5005/store';
+
+        return fetch(url, {
+          method: 'PUT',
+          headers: {
+            'Content-type': 'application/json',
+            Authorization: `Bearer ${userToken}`,
+          },
+          body: JSON.stringify({ store: data.store }),
+        });
+      })
+      .then((response) => {
+        if (!response.ok) throw new Error('Failed to delete the text element.');
+        console.log("Text element deleted successfully!");
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  };
 
   return (
     <div style={{ marginTop: '5rem', position: 'relative' }}>
-      <Button
-        variant="contained"
-        color="secondary"
-        onClick={() => navigate('/dashboard')}
+      <Button 
+        variant="contained" 
+        color="secondary" 
+        onClick={() => navigate('/dashboard')} 
         style={{ position: 'absolute', top: 0, left: 0 }}
       >
         Back
@@ -252,7 +301,7 @@ const PresentationEditor = () => {
         </IconButton>
       </Box>
 
-      <Button variant="contained" color="primary" onClick={handleOpenTextModal}>
+      <Button variant="contained" color="primary" onClick={() => handleOpenTextModal()}>
         Add Text Box
       </Button>
 
@@ -272,7 +321,7 @@ const PresentationEditor = () => {
           boxShadow: 24,
           p: 4,
         }}>
-          <Typography variant="h6" component="h2">Add Text Box</Typography>
+          <Typography variant="h6" component="h2">Add or Edit Text Box</Typography>
           <TextField
             label="Text Content"
             fullWidth
@@ -311,8 +360,28 @@ const PresentationEditor = () => {
             onChange={(e) => setNewText({ ...newText, color: e.target.value })}
             sx={{ mt: 2 }}
           />
-          <Button onClick={handleAddText} variant="contained" color="primary" sx={{ mt: 2 }}>
-            Add Text
+          {isPositionEditable && (
+            <>
+              <TextField
+                label="X Position (%)"
+                fullWidth
+                type="number"
+                value={newText.x}
+                onChange={(e) => setNewText({ ...newText, x: e.target.value })}
+                sx={{ mt: 2 }}
+              />
+              <TextField
+                label="Y Position (%)"
+                fullWidth
+                type="number"
+                value={newText.y}
+                onChange={(e) => setNewText({ ...newText, y: e.target.value })}
+                sx={{ mt: 2 }}
+              />
+            </>
+          )}
+          <Button onClick={handleAddOrUpdateText} variant="contained" color="primary" sx={{ mt: 2 }}>
+            Save Text
           </Button>
         </Box>
       </Modal>
@@ -331,13 +400,13 @@ const PresentationEditor = () => {
               color: element.color,
               border: '1px solid lightgray',
               padding: '4px',
-              overflow: 'hidden',
-              textAlign: 'left',
               cursor: 'pointer',
+              overflow: 'hidden',
             }}
-            onDoubleClick={() => {
-              setNewText(element);
-              setOpenTextModal(true);
+            onDoubleClick={() => handleOpenTextModal(element)}
+            onContextMenu={(e) => {
+              e.preventDefault();
+              handleDeleteTextElement(element.id);
             }}
           >
             {element.content}
