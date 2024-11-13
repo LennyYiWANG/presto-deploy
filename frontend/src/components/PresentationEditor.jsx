@@ -322,7 +322,43 @@ const [isPositionEditable, setIsPositionEditable] = useState(false); // 新增�
       </Button>
 
 
-      
+      <Modal
+        open={openEditTitleModal}
+        onClose={handleCloseEditTitle}
+        aria-labelledby="edit-title-modal"
+      >
+        <Box sx={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: 400,
+          bgcolor: 'background.paper',
+          border: '2px solid #000',
+          boxShadow: 24,
+          p: 4,
+        }}>
+          <Typography variant="h6" component="h2">
+            Edit Presentation Title
+          </Typography>
+          <TextField
+            fullWidth
+            label="Presentation Title"
+            variant="outlined"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            sx={{ mt: 2 }}
+          />
+          <Box mt={2} display="flex" justifyContent="flex-end">
+            <Button onClick={handleCloseEditTitle} sx={{ mr: 1 }}>
+              Cancel
+            </Button>
+            <Button variant="contained" color="primary" onClick={handleSaveTitle}>
+              Save
+            </Button>
+          </Box>
+        </Box>
+      </Modal>
 
       <Modal
         open={openDeleteModal}
