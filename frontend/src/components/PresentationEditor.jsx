@@ -12,9 +12,20 @@ const PresentationEditor = () => {
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [openEditTitleModal, setOpenEditTitleModal] = useState(false);
   const [openErrorModal, setOpenErrorModal] = useState(false);
+  const [openTextModal, setOpenTextModal] = useState(false);
   const [title, setTitle] = useState('');
   const [slides, setSlides] = useState([]);
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
+  const [newText, setNewText] = useState({
+    width: 50,
+    height: 20,
+    content: '',
+    fontSize: 1,
+    color: '#000000',
+    x: 0,
+    y: 0,
+  });
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -32,20 +43,18 @@ const PresentationEditor = () => {
   const handleCloseEditTitle = () => setOpenEditTitleModal(false);
   const handleOpenError = () => setOpenErrorModal(true);
   const handleCloseError = () => setOpenErrorModal(false);
+  const handleOpenTextModal = () => setOpenTextModal(true);
+  const handleCloseTextModal = () => setOpenTextModal(false);
 
   const handleDeleteSlide = () => {
     if (slides.length === 1) {
-      // If only one slide exists, prompt the user to delete the entire presentation
       handleOpenError();
       return;
     }
-
     const updatedSlides = slides.filter((_, index) => index !== currentSlideIndex);
     setSlides(updatedSlides);
-
     setCurrentSlideIndex(Math.max(currentSlideIndex - 1, 0));
 
-    // Update the slides in the database
     getStore()
       .then((data) => {
         if (data.store && data.store[id]) {
@@ -105,7 +114,7 @@ const PresentationEditor = () => {
         if (data.store && data.store[id]) {
           data.store[id].title = title;
         }
-        
+
         const userToken = localStorage.getItem('token');
         const url = 'http://localhost:5005/store';
 
@@ -129,7 +138,7 @@ const PresentationEditor = () => {
   };
 
   const handleCreateSlide = () => {
-    const updatedSlides = [...(Array.isArray(slides) ? slides : []), {}];
+    const updatedSlides = [...(Array.isArray(slides) ? slides : []), { textElements: [] }];
     setSlides(updatedSlides);
     setCurrentSlideIndex(updatedSlides.length - 1);
 
@@ -172,6 +181,46 @@ const PresentationEditor = () => {
     }
   };
 
+  const handleAddText = () => {
+    const newTextElement = { ...newText, id: Date.now() };
+    const updatedSlides = [...slides];
+    updatedSlides[currentSlideIndex] = {
+      ...updatedSlides[currentSlideIndex],
+      textElements: [
+        ...(updatedSlides[currentSlideIndex].textElements || []),
+        newTextElement,
+      ],
+    };
+    setSlides(updatedSlides);
+    handleCloseTextModal();
+
+    getStore()
+      .then((data) => {
+        if (data.store && data.store[id]) {
+          data.store[id].slides = updatedSlides;
+        }
+
+        const userToken = localStorage.getItem('token');
+        const url = 'http://localhost:5005/store';
+
+        return fetch(url, {
+          method: 'PUT',
+          headers: {
+            'Content-type': 'application/json',
+            Authorization: `Bearer ${userToken}`,
+          },
+          body: JSON.stringify({ store: data.store }),
+        });
+      })
+      .then((response) => {
+        if (!response.ok) throw new Error('Failed to save the new text element.');
+        console.log("Text element saved successfully!");
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  };
+
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'ArrowRight') handleNextSlide();
@@ -183,10 +232,10 @@ const PresentationEditor = () => {
 
   return (
     <div style={{ marginTop: '5rem', position: 'relative' }}>
-      <Button 
-        variant="contained" 
-        color="secondary" 
-        onClick={() => navigate('/dashboard')} 
+      <Button
+        variant="contained"
+        color="secondary"
+        onClick={() => navigate('/dashboard')}
         style={{ position: 'absolute', top: 0, left: 0 }}
       >
         Back
@@ -203,10 +252,14 @@ const PresentationEditor = () => {
         </IconButton>
       </Box>
 
+      <Button variant="contained" color="primary" onClick={handleOpenTextModal}>
+        Add Text Box
+      </Button>
+
       <Modal
-        open={openEditTitleModal}
-        onClose={handleCloseEditTitle}
-        aria-labelledby="edit-title-modal"
+        open={openTextModal}
+        onClose={handleCloseTextModal}
+        aria-labelledby="text-modal"
       >
         <Box sx={{
           position: 'absolute',
@@ -219,113 +272,78 @@ const PresentationEditor = () => {
           boxShadow: 24,
           p: 4,
         }}>
-          <Typography variant="h6" component="h2">
-            Edit Presentation Title
-          </Typography>
+          <Typography variant="h6" component="h2">Add Text Box</Typography>
           <TextField
+            label="Text Content"
             fullWidth
-            label="Presentation Title"
-            variant="outlined"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            value={newText.content}
+            onChange={(e) => setNewText({ ...newText, content: e.target.value })}
             sx={{ mt: 2 }}
           />
-          <Box mt={2} display="flex" justifyContent="flex-end">
-            <Button onClick={handleCloseEditTitle} sx={{ mr: 1 }}>
-              Cancel
-            </Button>
-            <Button variant="contained" color="primary" onClick={handleSaveTitle}>
-              Save
-            </Button>
-          </Box>
-        </Box>
-      </Modal>
-
-      <Modal
-        open={openDeleteModal}
-        onClose={handleCloseDelete}
-        aria-labelledby="delete-confirmation-modal"
-      >
-        <Box sx={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: 400,
-          bgcolor: 'background.paper',
-          border: '2px solid #000',
-          boxShadow: 24,
-          p: 4,
-        }}>
-          <Typography variant="h6" component="h2">
-            Are you sure?
-          </Typography>
-          <Box mt={2} display="flex" justifyContent="space-between">
-            <Button variant="contained" color="error" onClick={handleDelete}>
-              Yes
-            </Button>
-            <Button variant="contained" onClick={handleCloseDelete}>
-              No
-            </Button>
-          </Box>
-        </Box>
-      </Modal>
-
-      <Modal open={openErrorModal} onClose={handleCloseError} aria-labelledby="error-modal">
-        <Box sx={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: 400,
-          bgcolor: 'background.paper',
-          border: '2px solid #000',
-          boxShadow: 24,
-          p: 4,
-        }}>
-          <Typography variant="h6" component="h2">
-            Cannot delete the only slide.
-          </Typography>
-          <Typography sx={{ mt: 2 }}>
-            To delete this presentation, please click the icon next to the title.
-          </Typography>
-          <Box mt={2} display="flex" justifyContent="flex-end">
-            <Button variant="contained" onClick={handleCloseError}>
-              OK
-            </Button>
-          </Box>
+          <TextField
+            label="Width (%)"
+            fullWidth
+            type="number"
+            value={newText.width}
+            onChange={(e) => setNewText({ ...newText, width: e.target.value })}
+            sx={{ mt: 2 }}
+          />
+          <TextField
+            label="Height (%)"
+            fullWidth
+            type="number"
+            value={newText.height}
+            onChange={(e) => setNewText({ ...newText, height: e.target.value })}
+            sx={{ mt: 2 }}
+          />
+          <TextField
+            label="Font Size (em)"
+            fullWidth
+            type="number"
+            value={newText.fontSize}
+            onChange={(e) => setNewText({ ...newText, fontSize: e.target.value })}
+            sx={{ mt: 2 }}
+          />
+          <TextField
+            label="Text Color (#hex)"
+            fullWidth
+            value={newText.color}
+            onChange={(e) => setNewText({ ...newText, color: e.target.value })}
+            sx={{ mt: 2 }}
+          />
+          <Button onClick={handleAddText} variant="contained" color="primary" sx={{ mt: 2 }}>
+            Add Text
+          </Button>
         </Box>
       </Modal>
 
       <div style={{ width: '100%', height: '500px', border: '1px solid black', marginTop: '1rem', position: 'relative' }}>
-        {/* <Typography variant="h5" align="center">
-          Slide {currentSlideIndex + 1} of {slides.length}
-        </Typography> */}
-        <Button onClick={handleDeleteSlide} variant="contained" color="error" sx={{ position: 'absolute', bottom: '10px', right: '10px' }}>
-          Delete Slide
-        </Button>
-        
-        <Box
+        {slides[currentSlideIndex]?.textElements?.map((element) => (
+          <Box
+            key={element.id}
             sx={{
-                position: 'absolute',
-                bottom: '10px',
-                left: '10px',
-                width: '50px',
-                height: '50px',
-                backgroundColor: 'rgba(0, 0, 0, 0.5)', // 半透明背景
-                color: 'white',
-                fontSize: '1em',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: '5px',
+              position: 'absolute',
+              top: `${element.y}%`,
+              left: `${element.x}%`,
+              width: `${element.width}%`,
+              height: `${element.height}%`,
+              fontSize: `${element.fontSize}em`,
+              color: element.color,
+              border: '1px solid lightgray',
+              padding: '4px',
+              overflow: 'hidden',
+              textAlign: 'left',
+              cursor: 'pointer',
             }}
-        >
-            {currentSlideIndex + 1}
-        </Box>
+            onDoubleClick={() => {
+              setNewText(element);
+              setOpenTextModal(true);
+            }}
+          >
+            {element.content}
+          </Box>
+        ))}
       </div>
-
-      
 
       <Box display="flex" justifyContent="center" sx={{ mt: 2 }}>
         <IconButton
@@ -345,6 +363,9 @@ const PresentationEditor = () => {
         >
           <ArrowForwardIosIcon />
         </IconButton>
+        <Button onClick={handleDeleteSlide} variant="contained" color="error" sx={{ position: 'absolute', bottom: '10px', right: '10px' }}>
+          Delete Slide
+        </Button>
       </Box>
     </div>
   );
