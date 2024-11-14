@@ -23,8 +23,13 @@ const PresentationEditor = () => {
   const [title, setTitle] = useState("");
   const [slides, setSlides] = useState([]);
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
-  const [fontFamily, setFontFamily] = useState("Arial"); // 默认字体
-  const [openFontModal, setOpenFontModal] = useState(false); // 控制字体选择模态框的显示
+  const [fontFamily, setFontFamily] = useState("Arial"); 
+  const [openFontModal, setOpenFontModal] = useState(false); 
+  const [openBackgroundModal, setOpenBackgroundModal] = useState(false);
+  const [currentBackground, setCurrentBackground] = useState({
+    type: "color", 
+    value: "#ffffff" 
+});
 
   const navigate = useNavigate();
 
@@ -706,6 +711,39 @@ const PresentationEditor = () => {
     });
   };
 
+  //Background setting function
+  const applyBackground = () => {
+    const updatedSlides = [...slides];
+    updatedSlides[currentSlideIndex].background = currentBackground; 
+    setSlides(updatedSlides); 
+    setOpenBackgroundModal(false); 
+  
+    getStore().then((data) => {
+      if (data.store && data.store[id]) {
+        data.store[id].slides = updatedSlides;
+      }
+      const userToken = localStorage.getItem("token");
+      const url = "http://localhost:5005/store";
+  
+      fetch(url, {
+        method: "PUT",
+        headers: {
+          "Content-type": "application/json",
+          Authorization: `Bearer ${userToken}`,
+        },
+        body: JSON.stringify({ store: data.store }),
+      })
+        .then((response) => {
+          if (!response.ok) throw new Error("Failed to update background.");
+          console.log("Background updated successfully!");
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+    });
+  };
+  
+
   return (
     <div style={{ marginTop: "5rem", position: "relative" }}>
       <Button
@@ -742,13 +780,23 @@ const PresentationEditor = () => {
         </IconButton>
       </Box>
 
+
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={() => setOpenBackgroundModal(true)}
+        sx={{ mx: 2 }}
+      >
+        Choose Background
+      </Button>
+
       <Button
         variant="contained"
         color="primary"
         onClick={() => setOpenFontModal(true)}
         sx={{ mx: 2 }}
       >
-        选择字体
+        Choose Font
       </Button>
 
       <Button
@@ -1297,12 +1345,12 @@ const PresentationEditor = () => {
           }}
         >
           <Typography variant="h6" component="h2">
-            选择字体
+            Choose Font
           </Typography>
           <Select
             fullWidth
             value={fontFamily}
-            onChange={handleFontChange} // 选择字体后的处理函数
+            onChange={handleFontChange} 
             sx={{ mt: 2 }}
           >
             <MenuItem value="Arial">Arial</MenuItem>
