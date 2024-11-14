@@ -295,6 +295,132 @@ const [isPositionEditable, setIsPositionEditable] = useState(false); // 新增�
   };
   
 
+    //image element adding
+    const [openImageModal, setOpenImageModal] = useState(false); // 控制图像模态框显示
+    const [selectedImage, setSelectedImage] = useState(null); // 当前选择的图像
+    const [newImage, setNewImage] = useState({
+    width: 50,
+    height: 30,
+    url: '',
+    alt: 'Description',
+    x: 0,
+    y: 0,
+    }); // 图像的默认属性
+
+const handleOpenImageModal = (element = null) => {
+    if (element) {
+      setSelectedElement(element);
+      setNewImage(element);
+      setIsPositionEditable(true); // 启用位置编辑
+    } else {
+      setSelectedElement(null);
+      setNewImage({
+        width: 50,
+        height: 20,
+        url: '',
+        alt: '',
+        x: 0,
+        y: 0,
+      });
+      setIsPositionEditable(false); // 禁用位置编辑
+    }
+    setOpenImageModal(true);
+  };
+  
+
+const handleCloseImageModal = () => setOpenImageModal(false);
+const handleAddOrUpdateImage = () => {
+    const updatedSlides = [...slides];
+    if (selectedImage) {
+      updatedSlides[currentSlideIndex].imageElements = updatedSlides[currentSlideIndex].imageElements.map(img =>
+        img.id === selectedImage.id ? newImage : img
+      );
+    } else {
+      const newImageElement = { ...newImage, id: Date.now(), x: 0, y: 0 };
+      updatedSlides[currentSlideIndex].imageElements = [
+        ...(updatedSlides[currentSlideIndex].imageElements || []),
+        newImageElement,
+      ];
+    }
+    setSlides(updatedSlides);
+    handleCloseImageModal();
+  
+    // 保存到数据库
+    getStore()
+      .then((data) => {
+        if (data.store && data.store[id]) {
+          data.store[id].slides = updatedSlides;
+        }
+  
+        const userToken = localStorage.getItem('token');
+        const url = 'http://localhost:5005/store';
+  
+        return fetch(url, {
+          method: 'PUT',
+          headers: {
+            'Content-type': 'application/json',
+            Authorization: `Bearer ${userToken}`,
+          },
+          body: JSON.stringify({ store: data.store }),
+        });
+      })
+      .then((response) => {
+        if (!response.ok) throw new Error('Failed to save the image element.');
+        console.log("Image element saved successfully!");
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  };
+
+  const handleDeleteImageElement = (id) => {
+    const updatedSlides = [...slides];
+    updatedSlides[currentSlideIndex].imageElements = updatedSlides[currentSlideIndex].imageElements.filter(img => img.id !== id);
+    setSlides(updatedSlides);
+  
+    getStore()
+      .then((data) => {
+        if (data.store && data.store[id]) {
+          data.store[id].slides = updatedSlides;
+        }
+  
+        const userToken = localStorage.getItem('token');
+        const url = 'http://localhost:5005/store';
+  
+        return fetch(url, {
+          method: 'PUT',
+          headers: {
+            'Content-type': 'application/json',
+            Authorization: `Bearer ${userToken}`,
+          },
+          body: JSON.stringify({ store: data.store }),
+        });
+      })
+      .then((response) => {
+        if (!response.ok) throw new Error('Failed to delete the image element.');
+        console.log("Image element deleted successfully!");
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  };
+
+  // 更新 `newImage` 的 URL 为 base64 编码
+const handleImageUpload = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setNewImage({ ...newImage, url: reader.result });
+      };
+      reader.readAsDataURL(file); // 将文件转换为 base64
+    }
+  };
+  
+  
+  
+
+
   return (
     <div style={{ marginTop: '5rem', position: 'relative' }}>
       <Button 
@@ -319,6 +445,9 @@ const [isPositionEditable, setIsPositionEditable] = useState(false); // 新增�
 
       <Button variant="contained" color="primary" onClick={() => handleOpenTextModal()}>
         Add Text Box
+      </Button>
+      <Button variant="contained" color="primary" onClick={() => handleOpenImageModal()}>
+        Add Image
       </Button>
 
 
@@ -416,7 +545,7 @@ const [isPositionEditable, setIsPositionEditable] = useState(false); // 新增�
         </Box>
       </Modal>
 
-      <Modal
+    <Modal
         open={openTextModal}
         onClose={handleCloseTextModal}
         aria-labelledby="text-modal"
@@ -432,7 +561,7 @@ const [isPositionEditable, setIsPositionEditable] = useState(false); // 新增�
             boxShadow: 24,
             p: 4,
         }}>
-            <Typography variant="h6" component="h2">Add or Edit Text Box</Typography>
+            <Typography variant="h6" component="h2">Text Box</Typography>
             <TextField
             label="Text Content"
             fullWidth
@@ -497,6 +626,10 @@ const [isPositionEditable, setIsPositionEditable] = useState(false); // 新增�
         </Box>
         </Modal>
 
+        
+
+            
+
 
       <div style={{ width: '100%', height: '500px', border: '1px solid black', marginTop: '1rem', position: 'relative' }}>
         {/* <Typography variant="h5" align="center">
@@ -550,6 +683,31 @@ const [isPositionEditable, setIsPositionEditable] = useState(false); // 新增�
             {element.content}
         </Box>
         ))}
+
+        {slides[currentSlideIndex]?.imageElements?.map((image) => (
+        <Box
+            key={image.id}
+            sx={{
+            position: 'absolute',
+            top: `${image.y}%`,
+            left: `${image.x}%`,
+            width: `${image.width}%`,
+            height: `${image.height}%`,
+            backgroundImage: `url(${image.url})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            border: '1px solid lightgray',
+            cursor: 'pointer',
+            }}
+            onDoubleClick={() => handleOpenImageModal(image)}
+            onContextMenu={(e) => {
+            e.preventDefault();
+            handleDeleteImageElement(image.id);
+            }}
+            title={image.alt} // Alt text
+        />
+        ))}
+
       </div>
 
 
