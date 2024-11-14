@@ -573,6 +573,9 @@ const handleDeleteVideoElement = (id) => {
       <Button variant="contained" color="primary" onClick={() => handleOpenImageModal()}>
         Add Image
       </Button>
+      <Button variant="contained" color="primary" onClick={() => handleOpenVideoModal()}>
+        Add Video
+      </Button>
 
 
       <Modal
@@ -832,6 +835,82 @@ const handleDeleteVideoElement = (id) => {
         </Box>
     </Modal>
 
+    <Modal
+  open={openVideoModal}
+  onClose={handleCloseVideoModal}
+  aria-labelledby="video-modal"
+>   
+  <Box sx={{
+      position: 'absolute',
+      top: '50%',
+      left: '50%',
+      transform: 'translate(-50%, -50%)',
+      width: 400,
+      bgcolor: 'background.paper',
+      border: '2px solid #000',
+      boxShadow: 24,
+      p: 4,
+  }}>
+    <Typography variant="h6" component="h2">Video Properties</Typography>
+    <TextField
+      label="Video URL"
+      fullWidth
+      value={newVideo.url}
+      onChange={(e) => setNewVideo({ ...newVideo, url: e.target.value })}
+      sx={{ mt: 2 }}
+    />
+    <TextField
+      label="Width (%)"
+      fullWidth
+      type="number"
+      value={newVideo.width}
+      onChange={(e) => setNewVideo({ ...newVideo, width: e.target.value })}
+      sx={{ mt: 2 }}
+    />
+    <TextField
+      label="Height (%)"
+      fullWidth
+      type="number"
+      value={newVideo.height}
+      onChange={(e) => setNewVideo({ ...newVideo, height: e.target.value })}
+      sx={{ mt: 2 }}
+    />
+    <Box sx={{ mt: 2 }}>
+      <label>
+        <input
+          type="checkbox"
+          checked={newVideo.autoplay}
+          onChange={(e) => setNewVideo({ ...newVideo, autoplay: e.target.checked })}
+        />
+        Autoplay
+      </label>
+    </Box>
+    {isPositionEditable && (
+      <>
+          <TextField
+          label="X Position (%)"
+          fullWidth
+          type="number"
+          value={newVideo.x}
+          onChange={(e) => setNewVideo({ ...newVideo, x: e.target.value })}
+          sx={{ mt: 2 }}
+          />
+          <TextField
+          label="Y Position (%)"
+          fullWidth
+          type="number"
+          value={newVideo.y}
+          onChange={(e) => setNewVideo({ ...newVideo, y: e.target.value })}
+          sx={{ mt: 2 }}
+          />
+      </>
+    )}
+    <Button onClick={handleAddOrUpdateVideo} variant="contained" color="primary" sx={{ mt: 2 }}>
+      Save Video
+    </Button>
+  </Box>
+</Modal>
+
             
 
 
@@ -911,6 +990,37 @@ const handleDeleteVideoElement = (id) => {
             title={image.alt} // Alt text
         />
         ))}
+
+
+        {slides[currentSlideIndex]?.videoElements?.map((video) => (
+        <Box
+            key={video.id}
+            sx={{
+            position: 'absolute',
+            top: `${video.y}%`,
+            left: `${video.x}%`,
+            width: `${video.width}%`,
+            height: `${video.height}%`,
+            border: '1px solid lightgray',
+            cursor: 'pointer',
+            }}
+            onDoubleClick={() => handleOpenVideoModal(video)}
+            onContextMenu={(e) => {
+            e.preventDefault();
+            handleDeleteVideoElement(video.id);
+            }}
+        >
+            <iframe
+            width="100%"
+            height="100%"
+            src={`${video.url}${video.autoplay ? '&autoplay=1' : ''}`}
+            frameBorder="0"
+            allow="autoplay; encrypted-media"
+            allowFullScreen
+            />
+        </Box>
+        ))}
+
 
       </div>
 
