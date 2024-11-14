@@ -555,6 +555,123 @@ const PresentationEditor = () => {
       });
   };
 
+  // State management for code element
+  const [openCodeModal, setOpenCodeModal] = useState(false); // 控制代码模态框显示
+  const [selectedCode, setSelectedCode] = useState(null); // 当前选择的代码块
+  const [newCode, setNewCode] = useState({
+    width: 50,
+    height: 30,
+    code: "",
+    fontSize: 1,
+    language: "javascript",
+    x: 0,
+    y: 0,
+  }); // 代码块的默认属性
+
+  // 打开和关闭代码模态框
+  const handleOpenCodeModal = (element = null) => {
+    if (element) {
+      setSelectedCode(element);
+      setNewCode(element);
+      setIsPositionEditable(true); // 启用位置编辑
+    } else {
+      setSelectedCode(null);
+      setNewCode({
+        width: 50,
+        height: 30,
+        code: "",
+        fontSize: 1,
+        language: "javascript",
+        x: 0,
+        y: 0,
+      });
+      setIsPositionEditable(false); // 禁用位置编辑
+    }
+    setOpenCodeModal(true);
+  };
+
+  const handleCloseCodeModal = () => setOpenCodeModal(false);
+
+  const handleAddOrUpdateCode = () => {
+    const updatedSlides = [...slides];
+    if (selectedCode) {
+      updatedSlides[currentSlideIndex].codeElements = updatedSlides[
+        currentSlideIndex
+      ].codeElements.map((code) =>
+        code.id === selectedCode.id ? newCode : code
+      );
+    } else {
+      const newCodeElement = { ...newCode, id: Date.now(), x: 0, y: 0 };
+      updatedSlides[currentSlideIndex].codeElements = [
+        ...(updatedSlides[currentSlideIndex].codeElements || []),
+        newCodeElement,
+      ];
+    }
+    setSlides(updatedSlides);
+    handleCloseCodeModal();
+
+    // 保存到数据库
+    getStore()
+      .then((data) => {
+        if (data.store && data.store[id]) {
+          data.store[id].slides = updatedSlides;
+        }
+
+        const userToken = localStorage.getItem("token");
+        const url = "http://localhost:5005/store";
+
+        return fetch(url, {
+          method: "PUT",
+          headers: {
+            "Content-type": "application/json",
+            Authorization: `Bearer ${userToken}`,
+          },
+          body: JSON.stringify({ store: data.store }),
+        });
+      })
+      .then((response) => {
+        if (!response.ok) throw new Error("Failed to save the code element.");
+        console.log("Code element saved successfully!");
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  };
+
+  // 删除代码块
+  const handleDeleteCodeElement = (id) => {
+    slides[currentSlideIndex].codeElements = slides[
+      currentSlideIndex
+    ].codeElements.filter((code) => code.id !== id);
+    setSlides([...slides]);
+
+    getStore()
+      .then((data) => {
+        if (data.store && data.store[id]) {
+          data.store[id].slides = slides;
+        }
+
+        const userToken = localStorage.getItem("token");
+        const url = "http://localhost:5005/store";
+
+        return fetch(url, {
+          method: "PUT",
+          headers: {
+            "Content-type": "application/json",
+            Authorization: `Bearer ${userToken}`,
+          },
+          body: JSON.stringify({ store: data.store }),
+        });
+      })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Server response after deleting code element:", data);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  };
+
   return (
     <div style={{ marginTop: "5rem", position: "relative" }}>
       <Button
@@ -611,6 +728,14 @@ const PresentationEditor = () => {
         onClick={() => handleOpenVideoModal()}
       >
         Add Video
+      </Button>
+
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={() => handleOpenCodeModal()}
+      >
+        Add Code Block
       </Button>
 
       <Modal
@@ -1008,6 +1133,7 @@ const PresentationEditor = () => {
         </Box>
       </Modal>
 
+      
       <div
         style={{
           width: "100%",
@@ -1126,8 +1252,36 @@ const PresentationEditor = () => {
             />
           </Box>
         ))}
-      </div>
 
+        {slides[currentSlideIndex]?.codeElements?.map((code) => (
+          <Box
+            key={code.id}
+            sx={{
+              position: "absolute",
+              top: `${code.y}%`,
+              left: `${code.x}%`,
+              width: `${code.width}%`,
+              height: `${code.height}%`,
+              overflow: "auto",
+              fontSize: `${code.fontSize}em`,
+              fontFamily: "monospace",
+              border: "1px solid lightgray",
+              padding: "8px",
+              cursor: "pointer",
+              backgroundColor: "#f5f5f5",
+            }}
+            onDoubleClick={() => handleOpenCodeModal(code)}
+            onContextMenu={(e) => {
+              e.preventDefault();
+              handleDeleteCodeElement(code.id);
+            }}
+          >
+            <pre>
+              <code className={`language-${code.language}`}>{code.code}</code>
+            </pre>
+          </Box>
+        ))}
+      </div>
       <Box display="flex" justifyContent="center" sx={{ mt: 2 }}>
         <IconButton
           onClick={handlePreviousSlide}
