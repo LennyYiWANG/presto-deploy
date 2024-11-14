@@ -626,7 +626,88 @@ const handleImageUpload = (event) => {
         </Box>
         </Modal>
 
+        <Modal
+            open={openImageModal}
+            onClose={handleCloseImageModal}
+            aria-labelledby="image-modal"
+        >   
         
+        <Box sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: 400,
+            bgcolor: 'background.paper',
+            border: '2px solid #000',
+            boxShadow: 24,
+            p: 4,
+        }}>
+    
+        <Typography variant="h6" component="h2">Image Properties</Typography>
+        <TextField
+            label="Image URL or Upload"
+            fullWidth
+            value={newImage.url}
+            onChange={(e) => setNewImage({ ...newImage, url: e.target.value })}
+            sx={{ mt: 2 }}
+        />
+        <input
+            type="file"
+            accept="image/*"
+            onChange={handleImageUpload}
+            style={{ marginTop: '16px' }}
+        />
+
+        <TextField
+            label="Description"
+            fullWidth
+            value={newImage.alt}
+            onChange={(e) => setNewImage({ ...newImage, alt: e.target.value })}
+            sx={{ mt: 2 }}
+        />
+        <TextField
+            label="Width (%)"
+            fullWidth
+            type="number"
+            value={newImage.width}
+            onChange={(e) => setNewImage({ ...newImage, width: e.target.value })}
+            sx={{ mt: 2 }}
+        />
+        <TextField
+            label="Height (%)"
+            fullWidth
+            type="number"
+            value={newImage.height}
+            onChange={(e) => setNewImage({ ...newImage, height: e.target.value })}
+            sx={{ mt: 2 }}
+        />
+        {isPositionEditable && (
+            <>
+                <TextField
+                label="X Position (%)"
+                fullWidth
+                type="number"
+                value={newImage.x}
+                onChange={(e) => setNewImage({ ...newImage, x: e.target.value })}
+                sx={{ mt: 2 }}
+                />
+                <TextField
+                label="Y Position (%)"
+                fullWidth
+                type="number"
+                value={newImage.y}
+                onChange={(e) => setNewImage({ ...newImage, y: e.target.value })}
+                sx={{ mt: 2 }}
+                />
+            </>
+        )}
+        <Button onClick={handleAddOrUpdateImage} variant="contained" color="primary" sx={{ mt: 2 }}>
+            Save Image
+        </Button>
+        </Box>
+    </Modal>
+
             
 
 
