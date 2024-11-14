@@ -23,13 +23,13 @@ const PresentationEditor = () => {
   const [title, setTitle] = useState("");
   const [slides, setSlides] = useState([]);
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
-  const [fontFamily, setFontFamily] = useState("Arial"); 
-  const [openFontModal, setOpenFontModal] = useState(false); 
+  const [fontFamily, setFontFamily] = useState("Arial");
+  const [openFontModal, setOpenFontModal] = useState(false);
   const [openBackgroundModal, setOpenBackgroundModal] = useState(false);
   const [currentBackground, setCurrentBackground] = useState({
-    type: "color", 
-    value: "#ffffff" 
-});
+    type: "color",
+    value: "#ffffff",
+  });
 
   const navigate = useNavigate();
 
@@ -714,17 +714,17 @@ const PresentationEditor = () => {
   //Background setting function
   const applyBackground = () => {
     const updatedSlides = [...slides];
-    updatedSlides[currentSlideIndex].background = currentBackground; 
-    setSlides(updatedSlides); 
-    setOpenBackgroundModal(false); 
-  
+    updatedSlides[currentSlideIndex].background = currentBackground;
+    setSlides(updatedSlides);
+    setOpenBackgroundModal(false);
+
     getStore().then((data) => {
       if (data.store && data.store[id]) {
         data.store[id].slides = updatedSlides;
       }
       const userToken = localStorage.getItem("token");
       const url = "http://localhost:5005/store";
-  
+
       fetch(url, {
         method: "PUT",
         headers: {
@@ -742,7 +742,6 @@ const PresentationEditor = () => {
         });
     });
   };
-  
 
   return (
     <div style={{ marginTop: "5rem", position: "relative" }}>
@@ -779,7 +778,6 @@ const PresentationEditor = () => {
           <DeleteIcon />
         </IconButton>
       </Box>
-
 
       <Button
         variant="contained"
@@ -1350,7 +1348,7 @@ const PresentationEditor = () => {
           <Select
             fullWidth
             value={fontFamily}
-            onChange={handleFontChange} 
+            onChange={handleFontChange}
             sx={{ mt: 2 }}
           >
             <MenuItem value="Arial">Arial</MenuItem>
@@ -1363,6 +1361,106 @@ const PresentationEditor = () => {
         </Box>
       </Modal>
 
+      <Modal
+        open={openBackgroundModal}
+        onClose={() => setOpenBackgroundModal(false)}
+        aria-labelledby="background-modal"
+      >
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 400,
+            bgcolor: "background.paper",
+            border: "2px solid #000",
+            boxShadow: 24,
+            p: 4,
+          }}
+        >
+          <Typography variant="h6" component="h2">
+            Select Slide Background
+          </Typography>
+
+          <Select
+            fullWidth
+            value={currentBackground.type}
+            onChange={(e) =>
+              setCurrentBackground({
+                ...currentBackground,
+                type: e.target.value,
+              })
+            }
+            sx={{ mt: 2 }}
+          >
+            <MenuItem value="color">Solid Color</MenuItem>
+            <MenuItem value="gradient">Gradient</MenuItem>
+            <MenuItem value="image">Image</MenuItem>
+          </Select>
+
+          {currentBackground.type === "color" && (
+            <TextField
+              label="Color"
+              type="color"
+              fullWidth
+              value={currentBackground.value}
+              onChange={(e) =>
+                setCurrentBackground({
+                  ...currentBackground,
+                  value: e.target.value,
+                })
+              }
+              sx={{ mt: 2 }}
+            />
+          )}
+
+          {currentBackground.type === "gradient" && (
+            <TextField
+              label="Gradient (e.g., 'to right, #ff0000, #0000ff')"
+              fullWidth
+              value={currentBackground.value}
+              onChange={(e) =>
+                setCurrentBackground({
+                  ...currentBackground,
+                  value: e.target.value,
+                })
+              }
+              sx={{ mt: 2 }}
+            />
+          )}
+
+          {currentBackground.type === "image" && (
+            <TextField
+              label="Image URL"
+              fullWidth
+              value={currentBackground.value}
+              onChange={(e) =>
+                setCurrentBackground({
+                  ...currentBackground,
+                  value: e.target.value,
+                })
+              }
+              sx={{ mt: 2 }}
+            />
+          )}
+
+          <Box mt={2} display="flex" justifyContent="flex-end">
+            <Button onClick={() => setOpenBackgroundModal(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => applyBackground()}
+              sx={{ ml: 2 }}
+            >
+              Apply
+            </Button>
+          </Box>
+        </Box>
+      </Modal>
+
       <div
         style={{
           width: "100%",
@@ -1370,6 +1468,12 @@ const PresentationEditor = () => {
           border: "1px solid black",
           marginTop: "1rem",
           position: "relative",
+          background:
+            currentBackground.type === "color"
+              ? currentBackground.value
+              : currentBackground.type === "gradient"
+              ? `linear-gradient(${currentBackground.value})`
+              : `url(${currentBackground.value}) center/cover no-repeat`,
         }}
       >
         {/* <Typography variant="h5" align="center">
@@ -1420,10 +1524,10 @@ const PresentationEditor = () => {
               cursor: "pointer",
               overflow: "hidden",
             }}
-            onDoubleClick={() => handleOpenTextModal(element)} 
+            onDoubleClick={() => handleOpenTextModal(element)}
             onContextMenu={(e) => {
               e.preventDefault();
-              handleDeleteTextElement(element.id); 
+              handleDeleteTextElement(element.id);
             }}
           >
             {element.content}
@@ -1511,8 +1615,6 @@ const PresentationEditor = () => {
             </pre>
           </Box>
         ))}
-
-        
       </div>
       <Box display="flex" justifyContent="center" sx={{ mt: 2 }}>
         <IconButton
