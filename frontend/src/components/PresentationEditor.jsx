@@ -166,7 +166,7 @@ const [isPositionEditable, setIsPositionEditable] = useState(false); // 新增�
   };
 
   const handleCreateSlide = () => {
-    const updatedSlides = [...(Array.isArray(slides) ? slides : []), { textElements: [] }]; // 为新幻灯片初始化空的文本元素数组
+    const updatedSlides = [...(Array.isArray(slides) ? slides : []), { textElements: [], imageElements: [] }]; // 为新幻灯片初始化空的文本元素数组
     setSlides(updatedSlides);
     setCurrentSlideIndex(updatedSlides.length - 1);
 
@@ -263,19 +263,25 @@ const [isPositionEditable, setIsPositionEditable] = useState(false); // 新增�
   };
   
   const handleDeleteTextElement = (id) => {
-    const updatedSlides = [...slides];
-    updatedSlides[currentSlideIndex].textElements = updatedSlides[currentSlideIndex].textElements.filter(el => el.id !== id); // 从当前幻灯片的文本元素列表中移除选中的文本框
+    const updatedSlides = JSON.parse(JSON.stringify(slides)); // 深拷贝 slides
+    updatedSlides[currentSlideIndex].textElements = updatedSlides[currentSlideIndex].textElements.filter(el => el.id !== id);
+    console.log("Updated slides:", updatedSlides);
+
     setSlides(updatedSlides);
-  
+
+    
+
+
     getStore()
       .then((data) => {
+        console.log("Request body:", JSON.stringify({ store: data.store }));
         if (data.store && data.store[id]) {
           data.store[id].slides = updatedSlides;
         }
-  
+        
         const userToken = localStorage.getItem('token');
         const url = 'http://localhost:5005/store';
-  
+
         return fetch(url, {
           method: 'PUT',
           headers: {
@@ -286,13 +292,17 @@ const [isPositionEditable, setIsPositionEditable] = useState(false); // 新增�
         });
       })
       .then((response) => {
-        if (!response.ok) throw new Error('Failed to delete the text element.');
-        console.log("Text element deleted successfully!");
+        console.log("Response status:", response.status);
+        return response.json();
+      })
+      .then((data) => {
+        console.log("Complete server response:", JSON.stringify(data, null, 2));
+        console.log("Server response after deleting text element:", data);
       })
       .catch((error) => {
         console.error("Error:", error);
       });
-  };
+};
   
 
     //image element adding
@@ -373,38 +383,6 @@ const handleAddOrUpdateImage = () => {
       });
   };
 
-  const handleDeleteImageElement = (id) => {
-    const updatedSlides = [...slides];
-    updatedSlides[currentSlideIndex].imageElements = updatedSlides[currentSlideIndex].imageElements.filter(img => img.id !== id);
-    setSlides(updatedSlides);
-  
-    getStore()
-      .then((data) => {
-        if (data.store && data.store[id]) {
-          data.store[id].slides = updatedSlides;
-        }
-  
-        const userToken = localStorage.getItem('token');
-        const url = 'http://localhost:5005/store';
-  
-        return fetch(url, {
-          method: 'PUT',
-          headers: {
-            'Content-type': 'application/json',
-            Authorization: `Bearer ${userToken}`,
-          },
-          body: JSON.stringify({ store: data.store }),
-        });
-      })
-      .then((response) => {
-        if (!response.ok) throw new Error('Failed to delete the image element.');
-        console.log("Image element deleted successfully!");
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-      });
-  };
-
   // 更新 `newImage` 的 URL 为 base64 编码
 const handleImageUpload = (event) => {
     const file = event.target.files[0];
@@ -416,6 +394,152 @@ const handleImageUpload = (event) => {
       reader.readAsDataURL(file); // 将文件转换为 base64
     }
   };
+  
+  
+  const handleDeleteImageElement = (id) => {
+    // 直接修改 slides 数组
+    slides[currentSlideIndex].imageElements = slides[currentSlideIndex].imageElements.filter(img => img.id !== id);
+    setSlides([...slides]); // 更新状态
+
+    getStore()
+      .then((data) => {
+        if (data.store && data.store[id]) {
+          data.store[id].slides = slides;
+        }
+        
+        const userToken = localStorage.getItem('token');
+        const url = 'http://localhost:5005/store';
+
+        return fetch(url, {
+          method: 'PUT',
+          headers: {
+            'Content-type': 'application/json',
+            Authorization: `Bearer ${userToken}`,
+          },
+          body: JSON.stringify({ store: data.store }),
+        });
+      })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Server response after deleting image element:", data);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+};
+
+//vedio upload
+// State management for video element
+const [openVideoModal, setOpenVideoModal] = useState(false); // 控制视频模态框显示
+const [selectedVideo, setSelectedVideo] = useState(null); // 当前选择的视频
+const [newVideo, setNewVideo] = useState({
+  width: 50,
+  height: 30,
+  url: '',
+  autoplay: false,
+  x: 0,
+  y: 0,
+}); // 视频的默认属性
+
+const handleOpenVideoModal = (element = null) => {
+  if (element) {
+    setSelectedElement(element);
+    setNewVideo(element);
+    setIsPositionEditable(true); // 启用位置编辑
+  } else {
+    setSelectedElement(null);
+    setNewVideo({
+      width: 50,
+      height: 30,
+      url: '',
+      autoplay: false,
+      x: 0,
+      y: 0,
+    });
+    setIsPositionEditable(false); // 禁用位置编辑
+  }
+  setOpenVideoModal(true);
+};
+
+const handleCloseVideoModal = () => setOpenVideoModal(false);
+
+const handleAddOrUpdateVideo = () => {
+  const updatedSlides = [...slides];
+  if (selectedVideo) {
+    updatedSlides[currentSlideIndex].videoElements = updatedSlides[currentSlideIndex].videoElements.map(vid =>
+      vid.id === selectedVideo.id ? newVideo : vid
+    );
+  } else {
+    const newVideoElement = { ...newVideo, id: Date.now(), x: 0, y: 0 };
+    updatedSlides[currentSlideIndex].videoElements = [
+      ...(updatedSlides[currentSlideIndex].videoElements || []),
+      newVideoElement,
+    ];
+  }
+  setSlides(updatedSlides);
+  handleCloseVideoModal();
+
+  // 保存到数据库
+  getStore()
+    .then((data) => {
+      if (data.store && data.store[id]) {
+        data.store[id].slides = updatedSlides;
+      }
+
+      const userToken = localStorage.getItem('token');
+      const url = 'http://localhost:5005/store';
+
+      return fetch(url, {
+        method: 'PUT',
+        headers: {
+          'Content-type': 'application/json',
+          Authorization: `Bearer ${userToken}`,
+        },
+        body: JSON.stringify({ store: data.store }),
+      });
+    })
+    .then((response) => {
+      if (!response.ok) throw new Error('Failed to save the video element.');
+      console.log("Video element saved successfully!");
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+    });
+};
+
+const handleDeleteVideoElement = (id) => {
+  slides[currentSlideIndex].videoElements = slides[currentSlideIndex].videoElements.filter(vid => vid.id !== id);
+  setSlides([...slides]); // 更新状态
+
+  getStore()
+    .then((data) => {
+      if (data.store && data.store[id]) {
+        data.store[id].slides = slides;
+      }
+
+      const userToken = localStorage.getItem('token');
+      const url = 'http://localhost:5005/store';
+
+      return fetch(url, {
+        method: 'PUT',
+        headers: {
+          'Content-type': 'application/json',
+          Authorization: `Bearer ${userToken}`,
+        },
+        body: JSON.stringify({ store: data.store }),
+      });
+    })
+    .then((response) => response.json())
+    .then((data) => {
+      console.log("Server response after deleting video element:", data);
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+    });
+};
+
+
+
   
   
   
