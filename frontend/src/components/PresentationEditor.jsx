@@ -1133,7 +1133,109 @@ const PresentationEditor = () => {
         </Box>
       </Modal>
 
-      
+      <Modal
+        open={openCodeModal}
+        onClose={handleCloseCodeModal}
+        aria-labelledby="code-modal"
+      >
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 400,
+            bgcolor: "background.paper",
+            border: "2px solid #000",
+            boxShadow: 24,
+            p: 4,
+          }}
+        >
+          <Typography variant="h6" component="h2">
+            Code Block Properties
+          </Typography>
+          <TextField
+            label="Code"
+            fullWidth
+            multiline
+            minRows={4}
+            value={newCode.code}
+            onChange={(e) => setNewCode({ ...newCode, code: e.target.value })}
+            sx={{ mt: 2, fontFamily: "monospace" }}
+          />
+          <TextField
+            label="Width (%)"
+            fullWidth
+            type="number"
+            value={newCode.width}
+            onChange={(e) => setNewCode({ ...newCode, width: e.target.value })}
+            sx={{ mt: 2 }}
+          />
+          <TextField
+            label="Height (%)"
+            fullWidth
+            type="number"
+            value={newCode.height}
+            onChange={(e) => setNewCode({ ...newCode, height: e.target.value })}
+            sx={{ mt: 2 }}
+          />
+          <TextField
+            label="Font Size (em)"
+            fullWidth
+            type="number"
+            value={newCode.fontSize}
+            onChange={(e) =>
+              setNewCode({ ...newCode, fontSize: e.target.value })
+            }
+            sx={{ mt: 2 }}
+          />
+          <TextField
+            select
+            label="Language"
+            value={newCode.language}
+            onChange={(e) =>
+              setNewCode({ ...newCode, language: e.target.value })
+            }
+            sx={{ mt: 2 }}
+            SelectProps={{
+              native: true,
+            }}
+          >
+            <option value="javascript">JavaScript</option>
+            <option value="python">Python</option>
+            <option value="c">C</option>
+          </TextField>
+          {isPositionEditable && (
+            <>
+              <TextField
+                label="X Position (%)"
+                fullWidth
+                type="number"
+                value={newCode.x}
+                onChange={(e) => setNewCode({ ...newCode, x: e.target.value })}
+                sx={{ mt: 2 }}
+              />
+              <TextField
+                label="Y Position (%)"
+                fullWidth
+                type="number"
+                value={newCode.y}
+                onChange={(e) => setNewCode({ ...newCode, y: e.target.value })}
+                sx={{ mt: 2 }}
+              />
+            </>
+          )}
+          <Button
+            onClick={handleAddOrUpdateCode}
+            variant="contained"
+            color="primary"
+            sx={{ mt: 2 }}
+          >
+            Save Code
+          </Button>
+        </Box>
+      </Modal>
+
       <div
         style={{
           width: "100%",
