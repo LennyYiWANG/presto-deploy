@@ -12,6 +12,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
+import { Select, MenuItem } from "@mui/material";
 import { getStore } from "./DataProvide";
 
 const PresentationEditor = () => {
@@ -22,6 +23,9 @@ const PresentationEditor = () => {
   const [title, setTitle] = useState("");
   const [slides, setSlides] = useState([]);
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
+  const [fontFamily, setFontFamily] = useState("Arial"); // 默认字体
+  const [openFontModal, setOpenFontModal] = useState(false); // 控制字体选择模态框的显示
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -672,6 +676,36 @@ const PresentationEditor = () => {
       });
   };
 
+  const handleFontChange = (event) => {
+    const selectedFont = event.target.value;
+    setFontFamily(selectedFont);
+
+    getStore().then((data) => {
+      if (data.store && data.store[id]) {
+        data.store[id].fontFamily = selectedFont;
+      }
+
+      const userToken = localStorage.getItem("token");
+      const url = "http://localhost:5005/store";
+
+      fetch(url, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${userToken}`,
+        },
+        body: JSON.stringify({ store: data.store }),
+      })
+        .then((response) => {
+          if (!response.ok) throw new Error("字体更新失败");
+          console.log("字体更新成功！");
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+    });
+  };
+
   return (
     <div style={{ marginTop: "5rem", position: "relative" }}>
       <Button
@@ -707,6 +741,15 @@ const PresentationEditor = () => {
           <DeleteIcon />
         </IconButton>
       </Box>
+
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={() => setOpenFontModal(true)}
+        sx={{ mx: 2 }}
+      >
+        选择字体
+      </Button>
 
       <Button
         variant="contained"
@@ -1235,6 +1278,42 @@ const PresentationEditor = () => {
           </Button>
         </Box>
       </Modal>
+      <Modal
+        open={openFontModal}
+        onClose={() => setOpenFontModal(false)}
+        aria-labelledby="font-modal"
+      >
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 300,
+            bgcolor: "background.paper",
+            border: "2px solid #000",
+            boxShadow: 24,
+            p: 4,
+          }}
+        >
+          <Typography variant="h6" component="h2">
+            选择字体
+          </Typography>
+          <Select
+            fullWidth
+            value={fontFamily}
+            onChange={handleFontChange} // 选择字体后的处理函数
+            sx={{ mt: 2 }}
+          >
+            <MenuItem value="Arial">Arial</MenuItem>
+            <MenuItem value="Times New Roman">Times New Roman</MenuItem>
+            <MenuItem value="Courier New">Courier New</MenuItem>
+          </Select>
+          <Box mt={2} display="flex" justifyContent="flex-end">
+            <Button onClick={() => setOpenFontModal(false)}>关闭</Button>
+          </Box>
+        </Box>
+      </Modal>
 
       <div
         style={{
@@ -1287,15 +1366,16 @@ const PresentationEditor = () => {
               height: `${element.height}%`,
               fontSize: `${element.fontSize}em`,
               color: element.color,
+              fontFamily: fontFamily,
               border: "1px solid lightgray",
               padding: "4px",
               cursor: "pointer",
               overflow: "hidden",
             }}
-            onDoubleClick={() => handleOpenTextModal(element)} // 双击编辑
+            onDoubleClick={() => handleOpenTextModal(element)} 
             onContextMenu={(e) => {
               e.preventDefault();
-              handleDeleteTextElement(element.id); // 右键删除文本框
+              handleDeleteTextElement(element.id); 
             }}
           >
             {element.content}
@@ -1383,6 +1463,8 @@ const PresentationEditor = () => {
             </pre>
           </Box>
         ))}
+
+        
       </div>
       <Box display="flex" justifyContent="center" sx={{ mt: 2 }}>
         <IconButton
