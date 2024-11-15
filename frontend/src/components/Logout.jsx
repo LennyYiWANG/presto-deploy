@@ -13,7 +13,7 @@ const Logout = ({ token, setToken, userName }) => {
   };
 
   // 如果 token 为空，则不渲染导航栏
-  if (!token) {
+  if (!token || location.pathname.includes('/preview')) {
     return null;
   }
 
