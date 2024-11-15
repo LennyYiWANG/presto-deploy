@@ -3,6 +3,7 @@ import { Button, Box, Modal, TextField, Typography } from "@mui/material";
 import { useNavigate } from 'react-router-dom';
 import { getStore } from './DataProvide';
 import MediaCard from './MediaCard';
+import ThumbnailPreview from './ThumbnailPreview';
 
 const Dashboard = () => {
   const [open, setOpen] = useState(false);
@@ -31,16 +32,14 @@ const Dashboard = () => {
       .then((data) => {
         const storeData = data.store && typeof data.store === 'object' ? data.store : {};
         
-        // 找到现有ID中的最大值，然后加1
         const maxId = Math.max(0, ...Object.keys(storeData).map(id => parseInt(id, 10)));
         const newId = maxId + 1;
-  
-        // 使用新生成的ID并设置默认幻灯片
+
         storeData[newId] = { title, description, slides: [{}] }; // slides 数组默认包含一个空对象
-  
+
         const userToken = localStorage.getItem('token');
         const url = 'http://localhost:5005/store';
-  
+
         return fetch(url, {
           method: 'PUT',
           headers: {
@@ -62,7 +61,6 @@ const Dashboard = () => {
         console.error("Error:", error);
       });
   };
-  
 
   const handleCreatePresentation = () => {
     if (presentationName.trim() === '') return;
@@ -80,7 +78,7 @@ const Dashboard = () => {
           id,
           name: item.title || `Presentation ${id}`,
           description: item.description || '',
-          thumbnail: item.thumbnail || '',
+          slides: item.slides || [], // 将 slides 数据传递到 MediaCard
           slidesCount: item.slides ? Object.keys(item.slides).length : 0,
         }));
         setPresentations(presentationList);
@@ -143,13 +141,14 @@ const Dashboard = () => {
       <Box mt={4} display="flex" flexWrap="wrap" gap={2}>
         {presentations.map((presentation) => (
           <Box key={presentation.id} width="45%" onClick={() => handlePresentationClick(presentation.id)}>
-            <MediaCard
-              name={presentation.name}
-              description={presentation.description}
-              thumbnail={presentation.thumbnail}
-              slidesCount={presentation.slidesCount}
-            />
+          <MediaCard
+            name={presentation.name}
+            description={presentation.description}
+            thumbnail={ThumbnailPreview({ slides: presentation.slides })}
+            slidesCount={presentation.slidesCount}
+          />
           </Box>
+        
         ))}
       </Box>
     </div>

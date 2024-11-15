@@ -20,7 +20,8 @@ section,completed
 2.4.3,YES
 2.4.4,YES
 2.5,YES
-2.6,NO
+2.6.1,YES
+2.6.2,NO
 
 
 FE_DEPLOYED_URL: <Enter your deployed url here>
