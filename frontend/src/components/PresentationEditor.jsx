@@ -50,7 +50,7 @@ const PresentationEditor = () => {
             }
           );
   
-           // set the slide content, defaults to an empty array
+          // set the slide content, defaults to an empty array
           setSlides(Array.isArray(presentation.slides) ? presentation.slides : []);
         }
       })
@@ -719,8 +719,8 @@ const PresentationEditor = () => {
         body: JSON.stringify({ store: data.store }),
       })
         .then((response) => {
-          if (!response.ok) throw new Error("字体更新失败");
-          console.log("字体更新成功！");
+          if (!response.ok) throw new Error("Font update Fail");
+          console.log("Font update Success");
         })
         .catch((error) => {
           console.error("Error:", error);
@@ -804,114 +804,113 @@ const PresentationEditor = () => {
       </Box>
       
       {/* operation buttons */}
- {/* 操作按钮组 */}
- <Box
-    display="flex"
-    justifyContent="center"
-    gap={2}
-    flexWrap="wrap"
-    sx={{
-      mb: 3,
-      flexDirection: { xs: "column", sm: "row" }, // 小屏幕垂直排列，大屏幕水平排列
-      gap: { xs: 1, sm: 2 }, // 调整按钮间距
-    }}
-  >
-    <Button
-      variant="contained"
-      color="primary"
-      onClick={() => setOpenBackgroundModal(true)}
-      sx={{
-        width: { xs: "100%", sm: "auto" }, // 小屏幕按钮宽度占满
-        fontSize: { xs: "0.8rem", sm: "1rem" },
-      }}
-    >
+      <Box
+        display="flex"
+        justifyContent="center"
+        gap={2}
+        flexWrap="wrap"
+        sx={{
+          mb: 3,
+          flexDirection: { xs: "column", sm: "row" }, 
+          gap: { xs: 1, sm: 2 }, 
+        }}
+      >
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => setOpenBackgroundModal(true)}
+          sx={{
+            width: { xs: "100%", sm: "auto" }, 
+            fontSize: { xs: "0.8rem", sm: "1rem" },
+          }}
+        >
       Choose Background
-    </Button>
+        </Button>
 
-    <Button
-      variant="contained"
-      color="primary"
-      onClick={() => setOpenFontModal(true)}
-      sx={{
-        width: { xs: "100%", sm: "auto" },
-        fontSize: { xs: "0.8rem", sm: "1rem" },
-      }}
-    >
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => setOpenFontModal(true)}
+          sx={{
+            width: { xs: "100%", sm: "auto" },
+            fontSize: { xs: "0.8rem", sm: "1rem" },
+          }}
+        >
       Choose Font
-    </Button>
+        </Button>
 
-    <Button
-      variant="contained"
-      color="success"
-      onClick={() => window.open(`/preview/${id}/${currentSlideIndex}`, "_blank")}
-      sx={{
-        width: { xs: "100%", sm: "auto" },
-        fontSize: { xs: "0.8rem", sm: "1rem" },
-      }}
-    >
+        <Button
+          variant="contained"
+          color="success"
+          onClick={() => window.open(`/preview/${id}/${currentSlideIndex}`, "_blank")}
+          sx={{
+            width: { xs: "100%", sm: "auto" },
+            fontSize: { xs: "0.8rem", sm: "1rem" },
+          }}
+        >
       Preview
-    </Button>
-  </Box>
+        </Button>
+      </Box>
 
-  <Box
-    display="flex"
-    justifyContent="center"
-    gap={2}
-    flexWrap="wrap"
-    sx={{
-      mb: 3,
-      flexDirection: { xs: "column", sm: "row" },
-      gap: { xs: 1, sm: 2 },
-    }}
-  >
-    <Button
-      variant="contained"
-      color="secondary"
-      onClick={() => handleOpenTextModal()}
-      sx={{
-        width: { xs: "100%", sm: "auto" },
-        fontSize: { xs: "0.8rem", sm: "1rem" },
-      }}
-    >
+      <Box
+        display="flex"
+        justifyContent="center"
+        gap={2}
+        flexWrap="wrap"
+        sx={{
+          mb: 3,
+          flexDirection: { xs: "column", sm: "row" },
+          gap: { xs: 1, sm: 2 },
+        }}
+      >
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={() => handleOpenTextModal()}
+          sx={{
+            width: { xs: "100%", sm: "auto" },
+            fontSize: { xs: "0.8rem", sm: "1rem" },
+          }}
+        >
       Add Text Box
-    </Button>
+        </Button>
 
-    <Button
-      variant="contained"
-      color="secondary"
-      onClick={() => handleOpenImageModal()}
-      sx={{
-        width: { xs: "100%", sm: "auto" },
-        fontSize: { xs: "0.8rem", sm: "1rem" },
-      }}
-    >
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={() => handleOpenImageModal()}
+          sx={{
+            width: { xs: "100%", sm: "auto" },
+            fontSize: { xs: "0.8rem", sm: "1rem" },
+          }}
+        >
       Add Image
-    </Button>
+        </Button>
 
-    <Button
-      variant="contained"
-      color="secondary"
-      onClick={() => handleOpenVideoModal()}
-      sx={{
-        width: { xs: "100%", sm: "auto" },
-        fontSize: { xs: "0.8rem", sm: "1rem" },
-      }}
-    >
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={() => handleOpenVideoModal()}
+          sx={{
+            width: { xs: "100%", sm: "auto" },
+            fontSize: { xs: "0.8rem", sm: "1rem" },
+          }}
+        >
       Add Video
-    </Button>
+        </Button>
 
-    <Button
-      variant="contained"
-      color="secondary"
-      onClick={() => handleOpenCodeModal()}
-      sx={{
-        width: { xs: "100%", sm: "auto" },
-        fontSize: { xs: "0.8rem", sm: "1rem" },
-      }}
-    >
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={() => handleOpenCodeModal()}
+          sx={{
+            width: { xs: "100%", sm: "auto" },
+            fontSize: { xs: "0.8rem", sm: "1rem" },
+          }}
+        >
       Add Code Block
-    </Button>
-  </Box>
+        </Button>
+      </Box>
 
 
       
@@ -931,7 +930,7 @@ const PresentationEditor = () => {
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",
-            width: 400,
+            width: "80%",
             bgcolor: "background.paper",
             border: "2px solid #000",
             boxShadow: 24,
@@ -975,7 +974,7 @@ const PresentationEditor = () => {
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",
-            width: 400,
+            width: "80%",
             bgcolor: "background.paper",
             border: "2px solid #000",
             boxShadow: 24,
@@ -1007,7 +1006,7 @@ const PresentationEditor = () => {
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",
-            width: 400,
+            width: "80%",
             bgcolor: "background.paper",
             border: "2px solid #000",
             boxShadow: 24,
@@ -1040,7 +1039,7 @@ const PresentationEditor = () => {
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",
-            width: 400,
+            width: "80%",
             bgcolor: "background.paper",
             border: "2px solid #000",
             boxShadow: 24,
@@ -1134,7 +1133,7 @@ const PresentationEditor = () => {
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",
-            width: 400,
+            width: "80%",
             bgcolor: "background.paper",
             border: "2px solid #000",
             boxShadow: 24,
@@ -1231,7 +1230,7 @@ const PresentationEditor = () => {
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",
-            width: 400,
+            width: "80%",
             bgcolor: "background.paper",
             border: "2px solid #000",
             boxShadow: 24,
@@ -1326,7 +1325,7 @@ const PresentationEditor = () => {
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",
-            width: 400,
+            width: "80%",
             bgcolor: "background.paper",
             border: "2px solid #000",
             boxShadow: 24,
@@ -1428,7 +1427,7 @@ const PresentationEditor = () => {
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",
-            width: 300,
+            width: "70%",
             bgcolor: "background.paper",
             border: "2px solid #000",
             boxShadow: 24,
@@ -1465,7 +1464,7 @@ const PresentationEditor = () => {
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",
-            width: 400,
+            width: "80%",
             bgcolor: "background.paper",
             border: "2px solid #000",
             boxShadow: 24,

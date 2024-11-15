@@ -45,7 +45,7 @@ const Logout = ({ token, setToken, userName }) => {
 
           {/* Right Section (User name and Logout button) */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          <Typography 
+            <Typography 
               variant="body1" 
               sx={{ 
                 color: '#292e70', 

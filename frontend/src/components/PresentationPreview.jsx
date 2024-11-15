@@ -74,8 +74,8 @@ const PresentationPreview = () => {
             slides[currentSlideIndex]?.background?.type === "color"
               ? slides[currentSlideIndex]?.background?.value
               : slides[currentSlideIndex]?.background?.type === "gradient"
-              ? `linear-gradient(${slides[currentSlideIndex]?.background?.value})`
-              : `url(${slides[currentSlideIndex]?.background?.value}) center/cover no-repeat`,
+                ? `linear-gradient(${slides[currentSlideIndex]?.background?.value})`
+                : `url(${slides[currentSlideIndex]?.background?.value}) center/cover no-repeat`,
           position: "relative",
           overflow: "hidden",
         }}

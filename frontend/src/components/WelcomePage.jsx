@@ -41,11 +41,7 @@ const WelcomePage = () => {
             src={logo}
             alt="Presto Logo"
             style={{ width: '120px' }}
-            sx={{
-              '@media (max-width: 400px)': {
-                width: '80px',   
-              },
-            }}
+            
           />
         </Box>
         <Typography
