@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import { getStore } from './DataProvide';
 import MediaCard from './MediaCard';
 
-
 const Dashboard = () => {
   const [open, setOpen] = useState(false);
   const [presentations, setPresentations] = useState([]);
@@ -12,12 +11,14 @@ const Dashboard = () => {
   const [description, setDescription] = useState('');
   const navigate = useNavigate();
 
+  // Style object for modal display
   const style = {
     position: 'absolute',
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
     width: 400,
+    maxWidth: '90vw', 
     bgcolor: 'background.paper',
     border: '2px solid #000',
     boxShadow: 24,
@@ -27,6 +28,7 @@ const Dashboard = () => {
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
+  // Function to add a new presentation
   const postNew = (title, description) => {
     getStore()
       .then((data) => {
@@ -61,6 +63,8 @@ const Dashboard = () => {
       });
   };
 
+
+  // Handle the creation of a new presentation when form is submitted
   const handleCreatePresentation = () => {
     if (presentationName.trim() === '') return;
     postNew(presentationName, description);
@@ -69,6 +73,7 @@ const Dashboard = () => {
     handleClose();
   };
 
+  // Fetches all presentations from the store and sets them in state
   const fetchPresentations = () => {
     getStore()
       .then((data) => {
@@ -94,8 +99,8 @@ const Dashboard = () => {
   };
 
   return (
-    <div style={{ marginTop: '5rem' }}>
-      <Button variant="contained" color="primary" onClick={handleOpen}>
+    <div style={{ marginTop: '5rem', textAlign: 'center' }}>
+      <Button variant="contained" color="primary" onClick={handleOpen} sx={{ mb: 2 }}>
         New Presentation
       </Button>
       
@@ -106,7 +111,7 @@ const Dashboard = () => {
         aria-describedby="modal-modal-description"
       >
         <Box sx={style}>
-          <Typography id="modal-modal-title" variant="h6" component="h2">
+          <Typography id="modal-modal-title" variant="h6" component="h2" textAlign="center">
             Create New Presentation
           </Typography>
           <TextField
@@ -137,15 +142,34 @@ const Dashboard = () => {
         </Box>
       </Modal>
 
-      <Box mt={4} display="flex" flexWrap="wrap" gap={2}>
+      <Box
+        mt={4}
+        display="flex"
+        flexWrap="wrap"
+        gap={2}
+        sx={{
+          justifyContent: 'center',
+          '@media (max-width: 400px)': {
+            flexDirection: 'column', 
+            alignItems: 'center',
+          },
+        }}
+      >
         {presentations.map((presentation) => (
-          <Box key={presentation.id} width="45%" onClick={() => handlePresentationClick(presentation.id)}>
+          <Box
+            key={presentation.id}
+            width="45%"
+            onClick={() => handlePresentationClick(presentation.id)}
+            sx={{
+              '@media (max-width: 400px)': {
+                width: '90%', 
+              },
+            }}
+          >
             <MediaCard
               name={presentation.name}
               description={presentation.description}
-            
             />
-
           </Box>
         ))}
       </Box>
