@@ -1,142 +1,37 @@
-import { useState, useEffect, useRef } from "react";
-import { Box } from "@mui/material";
-import { getStore } from "./DataProvide";
+import React, { useState, useEffect } from "react";
 import domtoimage from "dom-to-image";
 
-const ThumbnailPreview = ({ presentationId, onThumbnailReady }) => {
-  const [slides, setSlides] = useState([]);
-  const previewRef = useRef(null);
+const ThumbnailPreview = ({ slides }) => {
+  const [thumbnailUrl, setThumbnailUrl] = useState("");
 
   useEffect(() => {
-    getStore()
-      .then((data) => {
-        if (data.store && data.store[presentationId]) {
-          setSlides(data.store[presentationId].slides || []);
-        }
-      })
-      .catch((error) => console.error("Error loading presentation data:", error));
-  }, [presentationId]);
+    const generateThumbnail = async () => {
+      const element = document.createElement("div");
+      // 创建用于生成缩略图的 DOM 元素
+      element.style.width = "200px";
+      element.style.height = "150px";
+      element.style.background =
+        slides[0]?.background?.type === "color"
+          ? slides[0].background.value
+          : slides[0]?.background?.type === "gradient"
+          ? `linear-gradient(${slides[0].background.value})`
+          : slides[0]?.background?.type === "image"
+          ? `url(${slides[0].background.value}) center/cover no-repeat`
+          : "white";
 
-  useEffect(() => {
-    if (slides.length > 0 && previewRef.current) {
-      // Convert the first slide to an image
-      domtoimage
-        .toPng(previewRef.current)
-        .then((dataUrl) => {
-          if (onThumbnailReady) {
-            onThumbnailReady(dataUrl);
-          }
-        })
-        .catch((error) => console.error("Error generating thumbnail:", error));
-    }
-  }, [slides, onThumbnailReady]);
+      try {
+        const dataUrl = await domtoimage.toPng(element);
+        setThumbnailUrl(dataUrl); // 设置图片 URL
+      } catch (error) {
+        console.error("Failed to generate thumbnail:", error);
+        setThumbnailUrl("default-thumbnail-url"); // 设置默认图片 URL
+      }
+    };
 
-  if (slides.length === 0) {
-    return <Box>Loading...</Box>;
-  }
+    generateThumbnail();
+  }, [slides]);
 
-  const firstSlide = slides[0];
-
-  return (
-    <Box
-      ref={previewRef}
-      sx={{
-        width: "300px", // Thumbnail width
-        height: "200px", // Thumbnail height
-        background:
-          firstSlide?.background?.type === "color"
-            ? firstSlide?.background?.value
-            : firstSlide?.background?.type === "gradient"
-            ? `linear-gradient(${firstSlide?.background?.value})`
-            : `url(${firstSlide?.background?.value}) center/cover no-repeat`,
-        position: "relative",
-        overflow: "hidden",
-      }}
-    >
-      {/* Render text elements */}
-      {firstSlide?.textElements?.map((element) => (
-        <Box
-          key={element.id}
-          sx={{
-            position: "absolute",
-            top: `${element.y}%`,
-            left: `${element.x}%`,
-            width: `${element.width}%`,
-            height: `${element.height}%`,
-            fontSize: `${element.fontSize}em`,
-            color: element.color,
-            fontFamily: element.fontFamily,
-          }}
-        >
-          {element.content}
-        </Box>
-      ))}
-
-      {/* Render image elements */}
-      {firstSlide?.imageElements?.map((image) => (
-        <Box
-          key={image.id}
-          sx={{
-            position: "absolute",
-            top: `${image.y}%`,
-            left: `${image.x}%`,
-            width: `${image.width}%`,
-            height: `${image.height}%`,
-            backgroundImage: `url(${image.url})`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-          }}
-          title={image.alt}
-        />
-      ))}
-
-      {/* Render video elements */}
-      {firstSlide?.videoElements?.map((video) => (
-        <Box
-          key={video.id}
-          sx={{
-            position: "absolute",
-            top: `${video.y}%`,
-            left: `${video.x}%`,
-            width: `${video.width}%`,
-            height: `${video.height}%`,
-          }}
-        >
-          <iframe
-            width="100%"
-            height="100%"
-            src={`${video.url}${video.autoplay ? "&autoplay=1" : ""}`}
-            frameBorder="0"
-            allow="autoplay; encrypted-media"
-            allowFullScreen
-          />
-        </Box>
-      ))}
-
-      {/* Render code elements */}
-      {firstSlide?.codeElements?.map((code) => (
-        <Box
-          key={code.id}
-          sx={{
-            position: "absolute",
-            top: `${code.y}%`,
-            left: `${code.x}%`,
-            width: `${code.width}%`,
-            height: `${code.height}%`,
-            fontSize: `${code.fontSize}em`,
-            fontFamily: "monospace",
-            backgroundColor: "#f5f5f5",
-            overflow: "auto",
-            padding: "8px",
-          }}
-        >
-          <pre>
-            <code className={`language-${code.language}`}>{code.code}</code>
-          </pre>
-        </Box>
-      ))}
-    </Box>
-  );
+  return thumbnailUrl; // 返回字符串形式的 URL
 };
 
 export default ThumbnailPreview;

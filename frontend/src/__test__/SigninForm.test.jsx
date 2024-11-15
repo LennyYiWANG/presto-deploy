@@ -70,6 +70,6 @@ describe('SignInForm Component', () => {
     await waitFor(() => {
       expect(mockSetToken).toHaveBeenCalledWith(fakeToken);
       expect(screen.getByText('Login successful! Redirecting...')).toBeInTheDocument();
-    }, { timeout: 2000 });  // 将超时时间设置为 2 秒
+    }, { timeout: 2000 });  
   });
 });

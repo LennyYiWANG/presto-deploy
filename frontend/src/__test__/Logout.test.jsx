@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom'; // 引入 MemoryRouter
+import { MemoryRouter } from 'react-router-dom'; 
 import Logout from '../components/Logout';
 
 describe('Logout Component', () => {

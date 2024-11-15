@@ -15,7 +15,7 @@ describe('Dashboard Component', () => {
       </MemoryRouter>
     );
 
-    // 检查是否渲染了 New Presentation 按钮
+    // Check if the New Presentation button is rendered.
     expect(screen.getByRole('button', { name: /New Presentation/i })).toBeInTheDocument();
   });
 
@@ -26,10 +26,9 @@ describe('Dashboard Component', () => {
       </MemoryRouter>
     );
 
-    // 点击按钮打开模态框
     fireEvent.click(screen.getByRole('button', { name: /New Presentation/i }));
 
-    // 检查模态框中的文本内容是否存在
+    // heck if the text content in the modal box exists
     expect(screen.getByText(/Create New Presentation/i)).toBeInTheDocument();
   });
 
@@ -40,17 +39,17 @@ describe('Dashboard Component', () => {
       </MemoryRouter>
     );
 
-    // 打开模态框
+    // Open modal box
     fireEvent.click(screen.getByRole('button', { name: /New Presentation/i }));
 
-    // 输入演示名称和描述
+
     const nameInput = screen.getByLabelText(/Presentation Name/i);
     const descriptionInput = screen.getByLabelText(/Description/i);
 
     fireEvent.change(nameInput, { target: { value: 'Test Presentation' } });
     fireEvent.change(descriptionInput, { target: { value: 'Test Description' } });
 
-    // 验证输入值
+
     expect(nameInput.value).toBe('Test Presentation');
     expect(descriptionInput.value).toBe('Test Description');
   });

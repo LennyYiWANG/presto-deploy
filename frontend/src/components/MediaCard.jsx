@@ -9,7 +9,7 @@ export default function MediaCard({ name, description, thumbnail, slidesCount })
     <Card sx={{ width: '100%', aspectRatio: '2 / 1', minWidth: 100, display: 'flex' }}>
       <CardMedia
         sx={{ width: '50%', bgcolor: thumbnail ? 'transparent' : 'grey.400' }}
-        image={thumbnail || 'https://via.placeholder.com/150/cccccc?text=No+Image'} // 使用占位图像作为默认缩略图
+        image={thumbnail || 'https://via.placeholder.com/150/cccccc?text=No+Image'} 
         title={name}
       />
       <CardContent sx={{ flex: 1 }}>

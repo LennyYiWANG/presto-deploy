@@ -8,10 +8,10 @@ const Logout = ({ token, setToken, userName }) => {
   const handleLogout = () => {
     setToken(null);
     localStorage.removeItem('token');
-    navigate('/'); // 导航到 welcome 页面
+    navigate('/'); // Navigate to the welcome page
   };
 
-  // 如果 token 为空，则不渲染导航栏
+  // If it is a welcome or demo page, the navigation bar is not rendered.
   if (!token || location.pathname.includes('/preview')) {
     return null;
   }

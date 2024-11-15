@@ -23,7 +23,7 @@ const PresentationPreview = () => {
   }, [id]);
 
   useEffect(() => {
-    // 更新 URL 以反映当前的幻灯片编号
+    // Update the URL to reflect the current slide numbers
     navigate(`/preview/${id}/${currentSlideIndex + 1}`, { replace: true });
   }, [id, currentSlideIndex, navigate]);
 
