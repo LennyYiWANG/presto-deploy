@@ -6,7 +6,7 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
-import logo from '../assets/images/logo_transparent.png'; // 确保路径正确
+import logo from '../assets/images/logo_transparent.png';
 
 const SignInForm = ({ setToken }) => {
   const [email, setEmail] = useState('');
@@ -30,13 +30,13 @@ const SignInForm = ({ setToken }) => {
       if (response.ok) {
         const data = await response.json();
         // console.log('Data:', data);
-        const token = data.token; // 从响应中获取 `token`
-        localStorage.setItem('token', token); // 将 `token` 存储在本地存储中     
+        const token = data.token; 
+        localStorage.setItem('token', token);  
         setSeverity('success');
         setSnackbarMessage('Login successful! Redirecting...');
         setOpenSnackbar(true);
         setTimeout(() => {
-          setToken(token); // 延迟设置 token
+          setToken(token); 
           navigate('/dashboard');
         }, 1500); 
       } else if (response.status === 400) {

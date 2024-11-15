@@ -39,13 +39,10 @@ const PresentationEditor = () => {
         if (data.store && data.store[id]) {
           const presentation = data.store[id];
           
-          // 设置标题，默认值为"Untitled"
           setTitle(presentation.title || "Untitled");
   
-          // 设置字体，默认值为"Arial"
           setFontFamily(presentation.fontFamily || "Arial");
   
-          // 设置背景，默认值为白色
           setCurrentBackground(
             presentation.slides?.[currentSlideIndex]?.background || {
               type: "color",
@@ -53,7 +50,7 @@ const PresentationEditor = () => {
             }
           );
   
-          // 设置幻灯片内容，默认值为空数组
+           // set the slide content, defaults to an empty array
           setSlides(Array.isArray(presentation.slides) ? presentation.slides : []);
         }
       })
@@ -68,8 +65,8 @@ const PresentationEditor = () => {
   
   
 
-  const [openTextModal, setOpenTextModal] = useState(false); // 新增，用于文本框编辑模态框的状态管理
-  const [selectedElement, setSelectedElement] = useState(null); // 新增，当前选中的文本元素，用于编辑特定文本框
+  const [openTextModal, setOpenTextModal] = useState(false); 
+  const [selectedElement, setSelectedElement] = useState(null); 
   const [newText, setNewText] = useState({
     width: 50,
     height: 20,
@@ -78,9 +75,9 @@ const PresentationEditor = () => {
     color: "#000000",
     x: 0,
     y: 0,
-  }); // 新增，存储文本框的宽度、高度、内容、字体大小、颜色以及初始位置
+  }); 
 
-  const [isPositionEditable, setIsPositionEditable] = useState(false); // 新增，用于控制位置编辑框显示（仅编辑模式）
+  const [isPositionEditable, setIsPositionEditable] = useState(false); 
 
   const handleOpenDelete = () => setOpenDeleteModal(true);
   const handleCloseDelete = () => setOpenDeleteModal(false);
@@ -91,11 +88,11 @@ const PresentationEditor = () => {
 
   const handleOpenTextModal = (element = null) => {
     if (element) {
-      setSelectedElement(element); // 如果传入了元素，设置为当前选中的文本框
-      setNewText(element); // 设置为已存在的文本框内容
-      setIsPositionEditable(true); // 启用位置编辑
+      setSelectedElement(element); 
+      setNewText(element); 
+      setIsPositionEditable(true); 
     } else {
-      setSelectedElement(null); // 没有传入元素则表示新增文本框
+      setSelectedElement(null); 
       setNewText({
         width: 50,
         height: 20,
@@ -104,12 +101,12 @@ const PresentationEditor = () => {
         color: "#000000",
         x: 0,
         y: 0,
-      }); // 初始化新文本框内容
-      setIsPositionEditable(false); // 禁用位置编辑
+      }); 
+      setIsPositionEditable(false); // Disable location editing
     }
-    setOpenTextModal(true); // 打开文本模态框
+    setOpenTextModal(true); 
   };
-  const handleCloseTextModal = () => setOpenTextModal(false); // 新增，关闭文本模态框
+  const handleCloseTextModal = () => setOpenTextModal(false); 
 
   const handleDeleteSlide = () => {
     if (slides.length === 1) {
@@ -212,7 +209,7 @@ const PresentationEditor = () => {
     const updatedSlides = [
       ...(Array.isArray(slides) ? slides : []),
       { textElements: [], imageElements: [] },
-    ]; // 为新幻灯片初始化空的文本元素数组
+    ]; // Initialize an empty array of text elements for the new slide.
     setSlides(updatedSlides);
     setCurrentSlideIndex(updatedSlides.length - 1);
 
@@ -275,9 +272,9 @@ const PresentationEditor = () => {
       updatedSlides[currentSlideIndex].textElements = [
         ...(updatedSlides[currentSlideIndex].textElements || []),
         newTextElement,
-      ]; // 将新文本框添加到当前幻灯片的文本元素列表
+      ]; // Add the new text box to the list of text elements on the current slide
     }
-    setSlides(updatedSlides); // 更新幻灯片内容
+    setSlides(updatedSlides); // Update slide content
     handleCloseTextModal();
 
     getStore()
@@ -309,7 +306,7 @@ const PresentationEditor = () => {
   };
 
   const handleDeleteTextElement = (id) => {
-    const updatedSlides = JSON.parse(JSON.stringify(slides)); // 深拷贝 slides
+    const updatedSlides = JSON.parse(JSON.stringify(slides)); 
     updatedSlides[currentSlideIndex].textElements = updatedSlides[
       currentSlideIndex
     ].textElements.filter((el) => el.id !== id);
@@ -351,8 +348,8 @@ const PresentationEditor = () => {
   };
 
   //image element adding
-  const [openImageModal, setOpenImageModal] = useState(false); // 控制图像模态框显示
-  const [selectedImage] = useState(null); // 当前选择的图像
+  const [openImageModal, setOpenImageModal] = useState(false); 
+  const [selectedImage] = useState(null); 
   const [newImage, setNewImage] = useState({
     width: 50,
     height: 30,
@@ -360,13 +357,13 @@ const PresentationEditor = () => {
     alt: "Description",
     x: 0,
     y: 0,
-  }); // 图像的默认属性
+  }); 
 
   const handleOpenImageModal = (element = null) => {
     if (element) {
       setSelectedElement(element);
       setNewImage(element);
-      setIsPositionEditable(true); // 启用位置编辑
+      setIsPositionEditable(true); 
     } else {
       setSelectedElement(null);
       setNewImage({
@@ -377,7 +374,7 @@ const PresentationEditor = () => {
         x: 0,
         y: 0,
       });
-      setIsPositionEditable(false); // 禁用位置编辑
+      setIsPositionEditable(false); 
     }
     setOpenImageModal(true);
   };
@@ -401,7 +398,6 @@ const PresentationEditor = () => {
     setSlides(updatedSlides);
     handleCloseImageModal();
 
-    // 保存到数据库
     getStore()
       .then((data) => {
         if (data.store && data.store[id]) {
@@ -429,7 +425,7 @@ const PresentationEditor = () => {
       });
   };
 
-  // 更新 `newImage` 的 URL 为 base64 编码
+  // Update the URL of `newImage` to base64 encoding
   const handleImageUpload = (event) => {
     const file = event.target.files[0];
     if (file) {
@@ -437,16 +433,15 @@ const PresentationEditor = () => {
       reader.onloadend = () => {
         setNewImage({ ...newImage, url: reader.result });
       };
-      reader.readAsDataURL(file); // 将文件转换为 base64
+      reader.readAsDataURL(file); 
     }
   };
 
   const handleDeleteImageElement = (id) => {
-    // 直接修改 slides 数组
     slides[currentSlideIndex].imageElements = slides[
       currentSlideIndex
     ].imageElements.filter((img) => img.id !== id);
-    setSlides([...slides]); // 更新状态
+    setSlides([...slides]);
 
     getStore()
       .then((data) => {
@@ -477,8 +472,8 @@ const PresentationEditor = () => {
 
   //vedio upload
   // State management for video element
-  const [openVideoModal, setOpenVideoModal] = useState(false); // 控制视频模态框显示
-  const [selectedVideo] = useState(null); // 当前选择的视频
+  const [openVideoModal, setOpenVideoModal] = useState(false); 
+  const [selectedVideo] = useState(null); 
   const [newVideo, setNewVideo] = useState({
     width: 50,
     height: 30,
@@ -486,13 +481,13 @@ const PresentationEditor = () => {
     autoplay: false,
     x: 0,
     y: 0,
-  }); // 视频的默认属性
+  }); 
 
   const handleOpenVideoModal = (element = null) => {
     if (element) {
       setSelectedElement(element);
       setNewVideo(element);
-      setIsPositionEditable(true); // 启用位置编辑
+      setIsPositionEditable(true); 
     } else {
       setSelectedElement(null);
       setNewVideo({
@@ -503,7 +498,7 @@ const PresentationEditor = () => {
         x: 0,
         y: 0,
       });
-      setIsPositionEditable(false); // 禁用位置编辑
+      setIsPositionEditable(false); 
     }
     setOpenVideoModal(true);
   };
@@ -528,7 +523,6 @@ const PresentationEditor = () => {
     setSlides(updatedSlides);
     handleCloseVideoModal();
 
-    // 保存到数据库
     getStore()
       .then((data) => {
         if (data.store && data.store[id]) {
@@ -560,7 +554,7 @@ const PresentationEditor = () => {
     slides[currentSlideIndex].videoElements = slides[
       currentSlideIndex
     ].videoElements.filter((vid) => vid.id !== id);
-    setSlides([...slides]); // 更新状态
+    setSlides([...slides]); 
 
     getStore()
       .then((data) => {
@@ -590,8 +584,8 @@ const PresentationEditor = () => {
   };
 
   // State management for code element
-  const [openCodeModal, setOpenCodeModal] = useState(false); // 控制代码模态框显示
-  const [selectedCode, setSelectedCode] = useState(null); // 当前选择的代码块
+  const [openCodeModal, setOpenCodeModal] = useState(false); 
+  const [selectedCode, setSelectedCode] = useState(null); 
   const [newCode, setNewCode] = useState({
     width: 50,
     height: 30,
@@ -600,14 +594,14 @@ const PresentationEditor = () => {
     language: "javascript",
     x: 0,
     y: 0,
-  }); // 代码块的默认属性
+  }); 
 
-  // 打开和关闭代码模态框
+
   const handleOpenCodeModal = (element = null) => {
     if (element) {
       setSelectedCode(element);
       setNewCode(element);
-      setIsPositionEditable(true); // 启用位置编辑
+      setIsPositionEditable(true); 
     } else {
       setSelectedCode(null);
       setNewCode({
@@ -619,7 +613,7 @@ const PresentationEditor = () => {
         x: 0,
         y: 0,
       });
-      setIsPositionEditable(false); // 禁用位置编辑
+      setIsPositionEditable(false); 
     }
     setOpenCodeModal(true);
   };
@@ -644,7 +638,6 @@ const PresentationEditor = () => {
     setSlides(updatedSlides);
     handleCloseCodeModal();
 
-    // 保存到数据库
     getStore()
       .then((data) => {
         if (data.store && data.store[id]) {
@@ -672,7 +665,6 @@ const PresentationEditor = () => {
       });
   };
 
-  // 删除代码块
   const handleDeleteCodeElement = (id) => {
     slides[currentSlideIndex].codeElements = slides[
       currentSlideIndex
@@ -775,7 +767,13 @@ const PresentationEditor = () => {
         variant="contained"
         color="warning"
         onClick={() => navigate("/dashboard")}
-        style={{ position: "absolute", top: 0, left: 0 }}
+        sx={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          fontSize: { xs: "0.8rem", sm: "1rem" }, // 响应式字体大小
+          padding: { xs: "4px 8px", sm: "8px 16px" }, // 响应式按钮内边距
+        }}
       >
         Back
       </Button>
@@ -805,67 +803,116 @@ const PresentationEditor = () => {
         </IconButton>
       </Box>
       
-      {/* 操作按钮 */}
-      <Box display="flex" justifyContent="center" gap={2} flexWrap="wrap" sx={{ mb: 3 }}>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => setOpenBackgroundModal(true)}
-          sx={{ mx: 2 }}
-        >
-          Choose Background
-        </Button>
+      {/* operation buttons */}
+ {/* 操作按钮组 */}
+ <Box
+    display="flex"
+    justifyContent="center"
+    gap={2}
+    flexWrap="wrap"
+    sx={{
+      mb: 3,
+      flexDirection: { xs: "column", sm: "row" }, // 小屏幕垂直排列，大屏幕水平排列
+      gap: { xs: 1, sm: 2 }, // 调整按钮间距
+    }}
+  >
+    <Button
+      variant="contained"
+      color="primary"
+      onClick={() => setOpenBackgroundModal(true)}
+      sx={{
+        width: { xs: "100%", sm: "auto" }, // 小屏幕按钮宽度占满
+        fontSize: { xs: "0.8rem", sm: "1rem" },
+      }}
+    >
+      Choose Background
+    </Button>
 
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => setOpenFontModal(true)}
-          sx={{ mx: 2 }}
-        >
-          Choose Font
-        </Button>       
-        
-        <Button
-          variant="contained"
-          color="success"
-          onClick={() => window.open(`/preview/${id}/${currentSlideIndex}`, "_blank")}
-          sx={{ mx: 2 }}
-        >
-          Preview
-        </Button>
-      </Box>
-        
-      <Box display="flex" justifyContent="center" gap={2} flexWrap="wrap" sx={{ mb: 3 }}>
-        <Button
-          variant="contained"
-          color="secondary"
-          onClick={() => handleOpenTextModal()}
-        >
-          Add Text Box
-        </Button>
-        <Button
-          variant="contained"
-          color="secondary"
-          onClick={() => handleOpenImageModal()}
-        >
-          Add Image
-        </Button>
-        <Button
-          variant="contained"
-          color="secondary"
-          onClick={() => handleOpenVideoModal()}
-        >
-          Add Video
-        </Button>
+    <Button
+      variant="contained"
+      color="primary"
+      onClick={() => setOpenFontModal(true)}
+      sx={{
+        width: { xs: "100%", sm: "auto" },
+        fontSize: { xs: "0.8rem", sm: "1rem" },
+      }}
+    >
+      Choose Font
+    </Button>
 
-        <Button
-          variant="contained"
-          color="secondary"
-          onClick={() => handleOpenCodeModal()}
-        >
-          Add Code Block
-        </Button>
-      </Box>
+    <Button
+      variant="contained"
+      color="success"
+      onClick={() => window.open(`/preview/${id}/${currentSlideIndex}`, "_blank")}
+      sx={{
+        width: { xs: "100%", sm: "auto" },
+        fontSize: { xs: "0.8rem", sm: "1rem" },
+      }}
+    >
+      Preview
+    </Button>
+  </Box>
+
+  <Box
+    display="flex"
+    justifyContent="center"
+    gap={2}
+    flexWrap="wrap"
+    sx={{
+      mb: 3,
+      flexDirection: { xs: "column", sm: "row" },
+      gap: { xs: 1, sm: 2 },
+    }}
+  >
+    <Button
+      variant="contained"
+      color="secondary"
+      onClick={() => handleOpenTextModal()}
+      sx={{
+        width: { xs: "100%", sm: "auto" },
+        fontSize: { xs: "0.8rem", sm: "1rem" },
+      }}
+    >
+      Add Text Box
+    </Button>
+
+    <Button
+      variant="contained"
+      color="secondary"
+      onClick={() => handleOpenImageModal()}
+      sx={{
+        width: { xs: "100%", sm: "auto" },
+        fontSize: { xs: "0.8rem", sm: "1rem" },
+      }}
+    >
+      Add Image
+    </Button>
+
+    <Button
+      variant="contained"
+      color="secondary"
+      onClick={() => handleOpenVideoModal()}
+      sx={{
+        width: { xs: "100%", sm: "auto" },
+        fontSize: { xs: "0.8rem", sm: "1rem" },
+      }}
+    >
+      Add Video
+    </Button>
+
+    <Button
+      variant="contained"
+      color="secondary"
+      onClick={() => handleOpenCodeModal()}
+      sx={{
+        width: { xs: "100%", sm: "auto" },
+        fontSize: { xs: "0.8rem", sm: "1rem" },
+      }}
+    >
+      Add Code Block
+    </Button>
+  </Box>
+
 
       
 
@@ -1541,7 +1588,7 @@ const PresentationEditor = () => {
             left: "10px",
             width: "50px",
             height: "50px",
-            backgroundColor: "rgba(0, 0, 0, 0.5)", // 半透明背景
+            backgroundColor: "rgba(0, 0, 0, 0.5)", 
             color: "white",
             fontSize: "1em",
             display: "flex",
