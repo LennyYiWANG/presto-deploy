@@ -8,10 +8,10 @@ const Logout = ({ token, setToken, userName }) => {
   const handleLogout = () => {
     setToken(null);
     localStorage.removeItem('token');
-    navigate('/'); // Navigate to the welcome page
+    navigate('/'); 
   };
 
-  // If it is a welcome or demo page, the navigation bar is not rendered.
+
   if (!token || location.pathname.includes('/preview')) {
     return null;
   }
@@ -30,19 +30,38 @@ const Logout = ({ token, setToken, userName }) => {
           />
 
           {/* Middle Section (Title or navigation links) */}
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1, textAlign: 'center', color: '#292e70' }}>
+          <Typography 
+            variant="h6" 
+            component="div" 
+            sx={{ 
+              flexGrow: 1, 
+              textAlign: { xs: 'center', sm: 'center' }, 
+              color: '#292e70',
+              fontSize: { xs: '1rem', sm: '1.25rem' },
+            }}
+          >
             Welcome to Presto
           </Typography>
 
           {/* Right Section (User name and Logout button) */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <Typography variant="body1" sx={{ color: '#292e70' }}>
+          <Typography 
+              variant="body1" 
+              sx={{ 
+                color: '#292e70', 
+                fontSize: { xs: '0.875rem', sm: '1rem' },
+              }}
+            >
               Welcome, {userName || 'User'}!
             </Typography>
             <Button
               variant="contained"
               color="primary"
               onClick={handleLogout}
+              sx={{
+                width: { xs: '100%', sm: 'auto' },
+                fontSize: { xs: '0.8rem', sm: '1rem' },
+              }}
               
             >
               Logout

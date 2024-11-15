@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { Button, Container, Typography, Box } from '@mui/material';
 import logo from '../assets/images/logo_transparent.png';
-import background from '../assets/images/background.png'; // 引入背景图片
+import background from '../assets/images/background.png'; 
 
 const WelcomePage = () => {
   const navigate = useNavigate();
@@ -9,41 +9,83 @@ const WelcomePage = () => {
   return (
     <div
       style={{
-        backgroundImage: `url(${background})`, // 设置背景图片
-        backgroundSize: 'cover',               // 背景覆盖整个页面
-        backgroundPosition: 'center',          // 背景居中
-        backgroundRepeat: 'no-repeat',         // 背景不重复
+        backgroundImage: `url(${background})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
         minHeight: '100vh',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        color: '#fff',                         // 设置文本为白色以增强可读性
+        color: '#fff',
       }}
     >
       <Container
         maxWidth="md"
         style={{
-          backgroundColor: 'rgba(255, 255, 255, 0.8)', // 半透明黑色背景以提高内容对比度
+          backgroundColor: 'rgba(255, 255, 255, 0.8)',
           padding: '30px',
           borderRadius: '15px',
-          boxShadow: '0 4px 8px rgba(0, 0, 0, 0.3)', // 轻微阴影效果
+          boxShadow: '0 4px 8px rgba(0, 0, 0, 0.3)',
           textAlign: 'center',
+        }}
+        sx={{
+          '@media (max-width: 400px)': {
+            padding: '20px',         
+            borderRadius: '10px',   
+          },
         }}
       >
         <Box mb={3}>
-          <img src={logo} alt="Presto Logo" style={{ width: '120px' }} />
+          <img
+            src={logo}
+            alt="Presto Logo"
+            style={{ width: '120px' }}
+            sx={{
+              '@media (max-width: 400px)': {
+                width: '80px',   
+              },
+            }}
+          />
         </Box>
-        <Typography variant="h4" component="h1" gutterBottom>
+        <Typography
+          variant="h4"
+          component="h1"
+          gutterBottom
+          sx={{
+            '@media (max-width: 400px)': {
+              fontSize: '1.8rem',   
+            },
+          }}
+        >
           Welcome to Presto
         </Typography>
-        <Typography variant="subtitle1" color="textSecondary" gutterBottom>
+        <Typography
+          variant="subtitle1"
+          color="textSecondary"
+          gutterBottom
+          sx={{
+            '@media (max-width: 400px)': {
+              fontSize: '1rem',   
+            },
+          }}
+        >
           Present with ease.
         </Typography>
-        <Box mt={4}>
+        <Box
+          mt={4}
+          sx={{
+            display: 'flex',
+            flexDirection: { xs: 'column', sm: 'row' },   
+            gap: 2,                                       
+            alignItems: 'center',
+          }}
+        >
           <Button
             variant="contained"
-            style={{ marginRight: '10px', backgroundColor: '#1976d2', color: '#ffffff' }}
+            style={{ backgroundColor: '#1976d2', color: '#ffffff' }}
             onClick={() => navigate('/login')}
+            fullWidth    
           >
             Login
           </Button>
@@ -51,6 +93,7 @@ const WelcomePage = () => {
             variant="outlined"
             style={{ borderColor: '#1976d2', color: '#1976d2' }}
             onClick={() => navigate('/register')}
+            fullWidth    
           >
             Register
           </Button>
@@ -58,6 +101,6 @@ const WelcomePage = () => {
       </Container>
     </div>
   );
-}
+};
 
 export default WelcomePage;
