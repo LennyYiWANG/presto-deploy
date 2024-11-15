@@ -9,6 +9,7 @@ import WelcomePage from './components/WelcomePage';
 import Logout from './components/Logout';
 import Dashboard from './components/Dashboard';
 import PresentationEditor from './components/PresentationEditor';
+import PresentationPreview from './components/PresentationPreview';
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem('token'));
@@ -29,7 +30,8 @@ function App() {
     <Route path="/login" element={<SignInForm setToken={setToken} />} />
     <Route path="/register" element={<SignUpForm setToken={setToken} />} />
     <Route path="/dashboard" element={<Dashboard setToken={setToken} />} />
-    <Route path="/presentation/:id" element={<PresentationEditor />} /> 
+    <Route path="/editor/:id/:slideIndex" element={<PresentationEditor />} />
+    <Route path="/preview/:id/:slideIndex" element={<PresentationPreview />} />
     </Routes>
     </BrowserRouter>
     </>

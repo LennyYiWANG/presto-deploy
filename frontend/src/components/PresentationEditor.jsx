@@ -61,6 +61,11 @@ const PresentationEditor = () => {
         console.error("Error loading presentation data:", error);
       });
   }, [id, currentSlideIndex]);
+
+  useEffect(() => {
+    navigate(`/editor/${id}/${currentSlideIndex + 1}`, { replace: true });
+  }, [id, currentSlideIndex, navigate]);
+  
   
 
   const [openTextModal, setOpenTextModal] = useState(false); // 新增，用于文本框编辑模态框的状态管理
@@ -846,6 +851,16 @@ const PresentationEditor = () => {
       >
         Add Code Block
       </Button>
+
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={() => window.open(`/preview/${id}/${currentSlideIndex}`, "_blank")}
+        sx={{ mx: 2 }}
+      >
+        Preview
+      </Button>
+
 
       <Modal
         open={openEditTitleModal}
