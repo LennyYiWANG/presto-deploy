@@ -30,6 +30,10 @@ const PresentationEditor = () => {
     type: "color",
     value: "#ffffff",
   });
+  const [defaultBackground, setDefaultBackground] = useState({
+    type: "color",
+    value: "#ffffff",
+  });
 
   const navigate = useNavigate();
 
@@ -44,6 +48,11 @@ const PresentationEditor = () => {
   
           // 设置字体，默认值为"Arial"
           setFontFamily(presentation.fontFamily || "Arial");
+
+          setDefaultBackground(presentation.defaultBackground || {
+            type: "color",
+            value: "#ffffff",
+          });
   
           // 设置背景，默认值为白色
           setCurrentBackground(
