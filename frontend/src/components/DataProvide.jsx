@@ -12,6 +12,12 @@ export const getStore = () => {
     .then((res) => {
       if (res.ok) {
         return res.json();
+      } else {
+        return {}; 
       }
+    })
+    .catch((error) => {
+      console.error("Error fetching store:", error);
+      return {}; 
     });
-  };
+};
