@@ -27,10 +27,17 @@ const PresentationEditor = () => {
   const [fontFamily, setFontFamily] = useState("Arial");
   const [openFontModal, setOpenFontModal] = useState(false);
   const [openBackgroundModal, setOpenBackgroundModal] = useState(false);
+  const [isDefaultBackgroundChecked, setIsDefaultBackgroundChecked] = useState(false);
   const [currentBackground, setCurrentBackground] = useState({
     type: "color",
     value: "#ffffff",
   });
+  const [defaultBackground, setDefaultBackground] = useState({
+    type: "color",
+    value: "#ffffff",
+  });
+  
+  
   const [setAsDefault, setSetAsDefault] = useState(false);
 
 
@@ -42,31 +49,29 @@ const PresentationEditor = () => {
         if (data.store && data.store[id]) {
           const presentation = data.store[id];
   
+          // 设置标题，默认值为"Untitled"
           setTitle(presentation.title || "Untitled");
+  
+          // 设置字体，默认值为"Arial"
           setFontFamily(presentation.fontFamily || "Arial");
   
-          // 加载默认背景
-          const defaultBg = presentation.defaultBackground || {
-            type: "color",
-            value: "#ffffff",
-          };
-          setDefaultBackground(defaultBg);
+          // 读取并应用默认背景
+          const storedDefaultBackground = presentation.defaultBackground || { type: "color", value: "#ffffff" };
+          setDefaultBackground(storedDefaultBackground);
   
-          // 应用默认背景到没有背景的幻灯片
-          const loadedSlides = (Array.isArray(presentation.slides) ? presentation.slides : []).map(
-            (slide) => ({
-              ...slide,
-              background: slide.background || defaultBg,
-            })
-          );
+          // 如果当前幻灯片有自定义背景，使用它；否则使用默认背景
+          const slideBackground = presentation.slides?.[currentSlideIndex]?.background || storedDefaultBackground;
+          setCurrentBackground(slideBackground);
   
-          setSlides(loadedSlides);
+          // 设置幻灯片内容，默认值为空数组
+          setSlides(Array.isArray(presentation.slides) ? presentation.slides : []);
         }
       })
       .catch((error) => {
         console.error("Error loading presentation data:", error);
       });
-  }, [id]);
+  }, [id, currentSlideIndex]);
+  
   
   
 
@@ -211,41 +216,38 @@ const PresentationEditor = () => {
   };
 
   const handleCreateSlide = () => {
-    const newSlide = {
-      textElements: [],
-      imageElements: [],
-      background: defaultBackground,  // 使用默认背景
-    };
+    const newSlide = { textElements: [], imageElements: [], background: defaultBackground || { type: "color", value: "#ffffff" } };
     const updatedSlides = [...slides, newSlide];
     setSlides(updatedSlides);
     setCurrentSlideIndex(updatedSlides.length - 1);
-
-    getStore()
-      .then((data) => {
-        if (data.store && data.store[id]) {
-          data.store[id].slides = updatedSlides;
-        }
-
-        const userToken = localStorage.getItem("token");
-        const url = "http://localhost:5005/store";
-
-        return fetch(url, {
-          method: "PUT",
-          headers: {
-            "Content-type": "application/json",
-            Authorization: `Bearer ${userToken}`,
-          },
-          body: JSON.stringify({ store: data.store }),
-        });
-      })
-      .then((response) => {
-        if (!response.ok) throw new Error("Failed to save the new slide.");
-        console.log("New slide saved successfully!");
-      })
-      .catch((error) => {
-        console.error("Error:", error);
+  
+    // 保存到数据库
+    getStore().then((data) => {
+      if (data.store && data.store[id]) {
+        data.store[id].slides = updatedSlides;
+      }
+  
+      const userToken = localStorage.getItem("token");
+      const url = "http://localhost:5005/store";
+  
+      return fetch(url, {
+        method: "PUT",
+        headers: {
+          "Content-type": "application/json",
+          Authorization: `Bearer ${userToken}`,
+        },
+        body: JSON.stringify({ store: data.store }),
       });
+    })
+    .then((response) => {
+      if (!response.ok) throw new Error("Failed to save the new slide.");
+      console.log("New slide saved successfully!");
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+    });
   };
+  
 
   const handleNextSlide = () => {
     if (currentSlideIndex < slides.length - 1) {
@@ -744,27 +746,22 @@ const PresentationEditor = () => {
   const applyBackground = () => {
     const updatedSlides = [...slides];
     updatedSlides[currentSlideIndex].background = currentBackground;
-    if (setAsDefault) {
-      setDefaultBackground(currentBackground);
-  
-      // 将默认背景应用到所有未设置背景的幻灯片
-      updatedSlides.forEach(slide => {
-        if (!slide.background) {
-          slide.background = currentBackground;
-        }
-      });
-    }
-  
     setSlides(updatedSlides);
     setOpenBackgroundModal(false);
-
+  
+    // 如果勾选了默认背景，则保存为默认背景
+    if (isDefaultBackgroundChecked) {
+      setDefaultBackground(currentBackground);
+    }
+  
+    // 更新当前幻灯片背景
     getStore().then((data) => {
       if (data.store && data.store[id]) {
         data.store[id].slides = updatedSlides;
       }
       const userToken = localStorage.getItem("token");
       const url = "http://localhost:5005/store";
-
+  
       fetch(url, {
         method: "PUT",
         headers: {
@@ -782,8 +779,9 @@ const PresentationEditor = () => {
         });
     });
   };
+  
 
-  const setDefaultBackground = (background) => {
+  const updateDefaultBackground = (background) => {
     setCurrentBackground(background);
     getStore().then((data) => {
       if (data.store && data.store[id]) {
