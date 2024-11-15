@@ -93,7 +93,7 @@ const Dashboard = () => {
   }, []);
 
   const handlePresentationClick = (id) => {
-    navigate(`/presentation/${id}`);
+    navigate(`/editor/${id}/0`);
   };
 
   return (
