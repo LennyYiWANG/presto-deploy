@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import domtoimage from "dom-to-image";
 
 const ThumbnailPreview = ({ slides }) => {
@@ -14,10 +14,10 @@ const ThumbnailPreview = ({ slides }) => {
         slides[0]?.background?.type === "color"
           ? slides[0].background.value
           : slides[0]?.background?.type === "gradient"
-          ? `linear-gradient(${slides[0].background.value})`
-          : slides[0]?.background?.type === "image"
-          ? `url(${slides[0].background.value}) center/cover no-repeat`
-          : "white";
+            ? `linear-gradient(${slides[0].background.value})`
+            : slides[0]?.background?.type === "image"
+              ? `url(${slides[0].background.value}) center/cover no-repeat`
+              : "white";
 
       try {
         const dataUrl = await domtoimage.toPng(element);

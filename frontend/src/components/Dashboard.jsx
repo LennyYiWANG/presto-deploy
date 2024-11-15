@@ -3,7 +3,7 @@ import { Button, Box, Modal, TextField, Typography } from "@mui/material";
 import { useNavigate } from 'react-router-dom';
 import { getStore } from './DataProvide';
 import MediaCard from './MediaCard';
-import ThumbnailPreview from './ThumbnailPreview';
+
 
 const Dashboard = () => {
   const [open, setOpen] = useState(false);
