@@ -130,7 +130,7 @@ const PresentationEditor = () => {
         }
 
         const userToken = localStorage.getItem("token");
-        const url = "http://localhost:5005/store";
+        const url = "https://cgi.cse.unsw.edu.au/~cs6080/presto/store";
 
         return fetch(url, {
           method: "PUT",
@@ -155,7 +155,7 @@ const PresentationEditor = () => {
       .then((data) => {
         delete data.store[id];
         const userToken = localStorage.getItem("token");
-        const url = "http://localhost:5005/store";
+        const url = "https://cgi.cse.unsw.edu.au/~cs6080/presto/store";
 
         return fetch(url, {
           method: "PUT",
@@ -184,7 +184,7 @@ const PresentationEditor = () => {
         }
 
         const userToken = localStorage.getItem("token");
-        const url = "http://localhost:5005/store";
+        const url = "https://cgi.cse.unsw.edu.au/~cs6080/presto/store";
 
         return fetch(url, {
           method: "PUT",
@@ -220,7 +220,7 @@ const PresentationEditor = () => {
         }
 
         const userToken = localStorage.getItem("token");
-        const url = "http://localhost:5005/store";
+        const url = "https://cgi.cse.unsw.edu.au/~cs6080/presto/store";
 
         return fetch(url, {
           method: "PUT",
@@ -284,7 +284,7 @@ const PresentationEditor = () => {
         }
 
         const userToken = localStorage.getItem("token");
-        const url = "http://localhost:5005/store";
+        const url = "https://cgi.cse.unsw.edu.au/~cs6080/presto/store";
 
         return fetch(url, {
           method: "PUT",
@@ -323,7 +323,7 @@ const PresentationEditor = () => {
         }
 
         const userToken = localStorage.getItem("token");
-        const url = "http://localhost:5005/store";
+        const url = "https://cgi.cse.unsw.edu.au/~cs6080/presto/store";
 
         return fetch(url, {
           method: "PUT",
@@ -405,7 +405,7 @@ const PresentationEditor = () => {
         }
 
         const userToken = localStorage.getItem("token");
-        const url = "http://localhost:5005/store";
+        const url = "https://cgi.cse.unsw.edu.au/~cs6080/presto/store";
 
         return fetch(url, {
           method: "PUT",
@@ -450,7 +450,7 @@ const PresentationEditor = () => {
         }
 
         const userToken = localStorage.getItem("token");
-        const url = "http://localhost:5005/store";
+        const url = "https://cgi.cse.unsw.edu.au/~cs6080/presto/store";
 
         return fetch(url, {
           method: "PUT",
@@ -530,7 +530,7 @@ const PresentationEditor = () => {
         }
 
         const userToken = localStorage.getItem("token");
-        const url = "http://localhost:5005/store";
+        const url = "https://cgi.cse.unsw.edu.au/~cs6080/presto/store";
 
         return fetch(url, {
           method: "PUT",
@@ -563,7 +563,7 @@ const PresentationEditor = () => {
         }
 
         const userToken = localStorage.getItem("token");
-        const url = "http://localhost:5005/store";
+        const url = "https://cgi.cse.unsw.edu.au/~cs6080/presto/store";
 
         return fetch(url, {
           method: "PUT",
@@ -645,7 +645,7 @@ const PresentationEditor = () => {
         }
 
         const userToken = localStorage.getItem("token");
-        const url = "http://localhost:5005/store";
+        const url = "https://cgi.cse.unsw.edu.au/~cs6080/presto/store";
 
         return fetch(url, {
           method: "PUT",
@@ -678,7 +678,7 @@ const PresentationEditor = () => {
         }
 
         const userToken = localStorage.getItem("token");
-        const url = "http://localhost:5005/store";
+        const url = "https://cgi.cse.unsw.edu.au/~cs6080/presto/store";
 
         return fetch(url, {
           method: "PUT",
@@ -708,7 +708,7 @@ const PresentationEditor = () => {
       }
 
       const userToken = localStorage.getItem("token");
-      const url = "http://localhost:5005/store";
+      const url = "https://cgi.cse.unsw.edu.au/~cs6080/presto/store";
 
       fetch(url, {
         method: "PUT",
@@ -740,7 +740,7 @@ const PresentationEditor = () => {
         data.store[id].slides = updatedSlides;
       }
       const userToken = localStorage.getItem("token");
-      const url = "http://localhost:5005/store";
+      const url = "https://cgi.cse.unsw.edu.au/~cs6080/presto/store";
 
       fetch(url, {
         method: "PUT",

@@ -39,7 +39,7 @@ const Dashboard = () => {
         storeData[newId] = { title, description, slides: [{}] };
 
         const userToken = localStorage.getItem('token');
-        const url = 'http://localhost:5005/store';
+        const url = 'https://cgi.cse.unsw.edu.au/~cs6080/presto/store';
 
         return fetch(url, {
           method: 'PUT',

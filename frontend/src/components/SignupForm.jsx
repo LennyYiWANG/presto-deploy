@@ -30,7 +30,7 @@ const SignUpForm = ({ setToken }) => {
     }
 
     try {
-      const response = await fetch('http://localhost:5005/admin/auth/register', {
+      const response = await fetch('https://z5558797-presto-deploy.vercel.app/admin/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

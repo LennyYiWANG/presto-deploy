@@ -1,6 +1,6 @@
 export const getStore = () => {
   const userToken = localStorage.getItem('token');
-  const url = 'http://localhost:5005/store';
+  const url = 'hhttps://cgi.cse.unsw.edu.au/~cs6080/presto/store';
     
   return fetch(url, {
     method: 'GET',
