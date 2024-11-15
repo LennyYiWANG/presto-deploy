@@ -13,7 +13,6 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import { Select, MenuItem } from "@mui/material";
-import { Checkbox } from "@mui/material";
 import { getStore } from "./DataProvide";
 
 const PresentationEditor = () => {
@@ -27,19 +26,10 @@ const PresentationEditor = () => {
   const [fontFamily, setFontFamily] = useState("Arial");
   const [openFontModal, setOpenFontModal] = useState(false);
   const [openBackgroundModal, setOpenBackgroundModal] = useState(false);
-  const [isDefaultBackgroundChecked, setIsDefaultBackgroundChecked] = useState(false);
   const [currentBackground, setCurrentBackground] = useState({
     type: "color",
     value: "#ffffff",
   });
-  const [defaultBackground, setDefaultBackground] = useState({
-    type: "color",
-    value: "#ffffff",
-  });
-  
-  
-  const [setAsDefault, setSetAsDefault] = useState(false);
-
 
   const navigate = useNavigate();
 
@@ -48,20 +38,20 @@ const PresentationEditor = () => {
       .then((data) => {
         if (data.store && data.store[id]) {
           const presentation = data.store[id];
-  
+          
           // 设置标题，默认值为"Untitled"
           setTitle(presentation.title || "Untitled");
   
           // 设置字体，默认值为"Arial"
           setFontFamily(presentation.fontFamily || "Arial");
   
-          // 读取并应用默认背景
-          const storedDefaultBackground = presentation.defaultBackground || { type: "color", value: "#ffffff" };
-          setDefaultBackground(storedDefaultBackground);
-  
-          // 如果当前幻灯片有自定义背景，使用它；否则使用默认背景
-          const slideBackground = presentation.slides?.[currentSlideIndex]?.background || storedDefaultBackground;
-          setCurrentBackground(slideBackground);
+          // 设置背景，默认值为白色
+          setCurrentBackground(
+            presentation.slides?.[currentSlideIndex]?.background || {
+              type: "color",
+              value: "#ffffff",
+            }
+          );
   
           // 设置幻灯片内容，默认值为空数组
           setSlides(Array.isArray(presentation.slides) ? presentation.slides : []);
@@ -71,8 +61,6 @@ const PresentationEditor = () => {
         console.error("Error loading presentation data:", error);
       });
   }, [id, currentSlideIndex]);
-  
-  
   
 
   const [openTextModal, setOpenTextModal] = useState(false); // 新增，用于文本框编辑模态框的状态管理
@@ -216,38 +204,39 @@ const PresentationEditor = () => {
   };
 
   const handleCreateSlide = () => {
-    const newSlide = { textElements: [], imageElements: [], background: defaultBackground || { type: "color", value: "#ffffff" } };
-    const updatedSlides = [...slides, newSlide];
+    const updatedSlides = [
+      ...(Array.isArray(slides) ? slides : []),
+      { textElements: [], imageElements: [] },
+    ]; // 为新幻灯片初始化空的文本元素数组
     setSlides(updatedSlides);
     setCurrentSlideIndex(updatedSlides.length - 1);
-  
-    // 保存到数据库
-    getStore().then((data) => {
-      if (data.store && data.store[id]) {
-        data.store[id].slides = updatedSlides;
-      }
-  
-      const userToken = localStorage.getItem("token");
-      const url = "http://localhost:5005/store";
-  
-      return fetch(url, {
-        method: "PUT",
-        headers: {
-          "Content-type": "application/json",
-          Authorization: `Bearer ${userToken}`,
-        },
-        body: JSON.stringify({ store: data.store }),
+
+    getStore()
+      .then((data) => {
+        if (data.store && data.store[id]) {
+          data.store[id].slides = updatedSlides;
+        }
+
+        const userToken = localStorage.getItem("token");
+        const url = "http://localhost:5005/store";
+
+        return fetch(url, {
+          method: "PUT",
+          headers: {
+            "Content-type": "application/json",
+            Authorization: `Bearer ${userToken}`,
+          },
+          body: JSON.stringify({ store: data.store }),
+        });
+      })
+      .then((response) => {
+        if (!response.ok) throw new Error("Failed to save the new slide.");
+        console.log("New slide saved successfully!");
+      })
+      .catch((error) => {
+        console.error("Error:", error);
       });
-    })
-    .then((response) => {
-      if (!response.ok) throw new Error("Failed to save the new slide.");
-      console.log("New slide saved successfully!");
-    })
-    .catch((error) => {
-      console.error("Error:", error);
-    });
   };
-  
 
   const handleNextSlide = () => {
     if (currentSlideIndex < slides.length - 1) {
@@ -748,20 +737,14 @@ const PresentationEditor = () => {
     updatedSlides[currentSlideIndex].background = currentBackground;
     setSlides(updatedSlides);
     setOpenBackgroundModal(false);
-  
-    // 如果勾选了默认背景，则保存为默认背景
-    if (isDefaultBackgroundChecked) {
-      setDefaultBackground(currentBackground);
-    }
-  
-    // 更新当前幻灯片背景
+
     getStore().then((data) => {
       if (data.store && data.store[id]) {
         data.store[id].slides = updatedSlides;
       }
       const userToken = localStorage.getItem("token");
       const url = "http://localhost:5005/store";
-  
+
       fetch(url, {
         method: "PUT",
         headers: {
@@ -779,36 +762,6 @@ const PresentationEditor = () => {
         });
     });
   };
-  
-
-  const updateDefaultBackground = (background) => {
-    setCurrentBackground(background);
-    getStore().then((data) => {
-      if (data.store && data.store[id]) {
-        data.store[id].defaultBackground = background;
-      }
-  
-      const userToken = localStorage.getItem("token");
-      const url = "http://localhost:5005/store";
-  
-      fetch(url, {
-        method: "PUT",
-        headers: {
-          "Content-type": "application/json",
-          Authorization: `Bearer ${userToken}`,
-        },
-        body: JSON.stringify({ store: data.store }),
-      })
-        .then((response) => {
-          if (!response.ok) throw new Error("Failed to save default background.");
-          console.log("Default background saved successfully!");
-        })
-        .catch((error) => {
-          console.error("Error:", error);
-        });
-    });
-  };
-  
 
   return (
     <div style={{ marginTop: "5rem", position: "relative" }}>
@@ -1513,13 +1466,6 @@ const PresentationEditor = () => {
           )}
 
           <Box mt={2} display="flex" justifyContent="flex-end">
-            <Checkbox
-              checked={setAsDefault}
-              onChange={(e) => setSetAsDefault(e.target.checked)}
-              sx={{ mt: 2 }}
-            />
-            <label>Set as default background</label>
-
             <Button onClick={() => setOpenBackgroundModal(false)}>
               Cancel
             </Button>
