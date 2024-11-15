@@ -42,35 +42,35 @@ const PresentationEditor = () => {
       .then((data) => {
         if (data.store && data.store[id]) {
           const presentation = data.store[id];
-          
-          // 设置标题，默认值为"Untitled"
+
           setTitle(presentation.title || "Untitled");
-  
-          // 设置字体，默认值为"Arial"
+
           setFontFamily(presentation.fontFamily || "Arial");
 
-          setDefaultBackground(presentation.defaultBackground || {
-            type: "color",
-            value: "#ffffff",
-          });
-  
-          // 设置背景，默认值为白色
+          setDefaultBackground(
+            presentation.defaultBackground || {
+              type: "color",
+              value: "#ffffff",
+            }
+          );
+
           setCurrentBackground(
             presentation.slides?.[currentSlideIndex]?.background || {
               type: "color",
               value: "#ffffff",
             }
           );
-  
+
           // 设置幻灯片内容，默认值为空数组
-          setSlides(Array.isArray(presentation.slides) ? presentation.slides : []);
+          setSlides(
+            Array.isArray(presentation.slides) ? presentation.slides : []
+          );
         }
       })
       .catch((error) => {
         console.error("Error loading presentation data:", error);
       });
   }, [id, currentSlideIndex]);
-  
 
   const [openTextModal, setOpenTextModal] = useState(false); // 新增，用于文本框编辑模态框的状态管理
   const [selectedElement, setSelectedElement] = useState(null); // 新增，当前选中的文本元素，用于编辑特定文本框
@@ -320,7 +320,6 @@ const PresentationEditor = () => {
     console.log("Updated slides:", updatedSlides);
 
     setSlides(updatedSlides);
-    
 
     getStore()
       .then((data) => {
@@ -770,6 +769,40 @@ const PresentationEditor = () => {
           console.error("Error:", error);
         });
     });
+  };
+
+  const applyDefaultBackground = () => {
+    setDefaultBackground(currentBackground);
+    setOpenBackgroundModal(false);
+
+    getStore().then((data) => {
+      if (data.store && data.store[id]) {
+        data.store[id].defaultBackground = currentBackground;
+      }
+      const userToken = localStorage.getItem("token");
+      const url = "http://localhost:5005/store";
+
+      fetch(url, {
+        method: "PUT",
+        headers: {
+          "Content-type": "application/json",
+          Authorization: `Bearer ${userToken}`,
+        },
+        body: JSON.stringify({ store: data.store }),
+      })
+        .then((response) => {
+          if (!response.ok)
+            throw new Error("Failed to set default background.");
+          console.log("Default background set successfully!");
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+    });
+  };
+
+  const getSlideBackground = (slide) => {
+    return slide.background || defaultBackground;
   };
 
   return (
