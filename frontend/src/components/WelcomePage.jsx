@@ -1,4 +1,3 @@
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, Container, Typography, Box } from '@mui/material';
 import logo from '../assets/images/logo_transparent.png';

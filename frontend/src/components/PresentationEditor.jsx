@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   Box,
@@ -352,7 +352,7 @@ const PresentationEditor = () => {
 
   //image element adding
   const [openImageModal, setOpenImageModal] = useState(false); // 控制图像模态框显示
-  const [selectedImage, setSelectedImage] = useState(null); // 当前选择的图像
+  const [selectedImage] = useState(null);
   const [newImage, setNewImage] = useState({
     width: 50,
     height: 30,
@@ -478,7 +478,7 @@ const PresentationEditor = () => {
   //vedio upload
   // State management for video element
   const [openVideoModal, setOpenVideoModal] = useState(false); // 控制视频模态框显示
-  const [selectedVideo, setSelectedVideo] = useState(null); // 当前选择的视频
+  const [selectedVideo] = useState(null); // 当前选择的视频
   const [newVideo, setNewVideo] = useState({
     width: 50,
     height: 30,

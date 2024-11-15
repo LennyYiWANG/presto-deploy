@@ -1,8 +1,5 @@
 import { useState, useEffect } from 'react';
-import reactLogo from './assets/react.svg';
-import viteLogo from '/vite.svg';
 import { BrowserRouter, Routes, Route} from 'react-router-dom';
-
 import SignInForm from './components/SigninForm';
 import SignUpForm from './components/SignupForm';
 import WelcomePage from './components/WelcomePage';

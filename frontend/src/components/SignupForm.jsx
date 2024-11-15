@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
@@ -64,7 +64,7 @@ const SignUpForm = ({ setToken }) => {
         setSnackbarMessage('An error occurred. Please try again.');
         setOpenSnackbar(true);
       }
-    } catch (error) {
+    } catch (_error) {
       setSeverity('error');
       setSnackbarMessage('An unexpected error occurred. Please try again.');
       setOpenSnackbar(true);
