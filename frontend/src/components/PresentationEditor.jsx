@@ -770,9 +770,10 @@ const PresentationEditor = () => {
 
   return (
     <div style={{ marginTop: "5rem", position: "relative" }}>
+      
       <Button
         variant="contained"
-        color="secondary"
+        color="warning"
         onClick={() => navigate("/dashboard")}
         style={{ position: "absolute", top: 0, left: 0 }}
       >
@@ -803,63 +804,73 @@ const PresentationEditor = () => {
           <DeleteIcon />
         </IconButton>
       </Box>
+      
+      {/* 操作按钮 */}
+      <Box display="flex" justifyContent="center" gap={2} flexWrap="wrap" sx={{ mb: 3 }}>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => setOpenBackgroundModal(true)}
+          sx={{ mx: 2 }}
+        >
+          Choose Background
+        </Button>
 
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={() => setOpenBackgroundModal(true)}
-        sx={{ mx: 2 }}
-      >
-        Choose Background
-      </Button>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => setOpenFontModal(true)}
+          sx={{ mx: 2 }}
+        >
+          Choose Font
+        </Button>       
+        
+        <Button
+          variant="contained"
+          color="success"
+          onClick={() => window.open(`/preview/${id}/${currentSlideIndex}`, "_blank")}
+          sx={{ mx: 2 }}
+        >
+          Preview
+        </Button>
+      </Box>
+        
+      <Box display="flex" justifyContent="center" gap={2} flexWrap="wrap" sx={{ mb: 3 }}>
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={() => handleOpenTextModal()}
+        >
+          Add Text Box
+        </Button>
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={() => handleOpenImageModal()}
+        >
+          Add Image
+        </Button>
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={() => handleOpenVideoModal()}
+        >
+          Add Video
+        </Button>
 
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={() => setOpenFontModal(true)}
-        sx={{ mx: 2 }}
-      >
-        Choose Font
-      </Button>
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={() => handleOpenCodeModal()}
+        >
+          Add Code Block
+        </Button>
+      </Box>
 
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={() => handleOpenTextModal()}
-      >
-        Add Text Box
-      </Button>
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={() => handleOpenImageModal()}
-      >
-        Add Image
-      </Button>
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={() => handleOpenVideoModal()}
-      >
-        Add Video
-      </Button>
+      
 
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={() => handleOpenCodeModal()}
-      >
-        Add Code Block
-      </Button>
+      
 
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={() => window.open(`/preview/${id}/${currentSlideIndex}`, "_blank")}
-        sx={{ mx: 2 }}
-      >
-        Preview
-      </Button>
 
 
       <Modal
@@ -1499,7 +1510,7 @@ const PresentationEditor = () => {
       <div
         style={{
           width: "100%",
-          height: "500px",
+          aspectRatio: "16 / 9",
           border: "1px solid black",
           marginTop: "1rem",
           position: "relative",
