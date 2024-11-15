@@ -13,6 +13,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import { Select, MenuItem } from "@mui/material";
+import { Checkbox } from "@mui/material";
 import { getStore } from "./DataProvide";
 
 const PresentationEditor = () => {
@@ -30,10 +31,8 @@ const PresentationEditor = () => {
     type: "color",
     value: "#ffffff",
   });
-  const [defaultBackground, setDefaultBackground] = useState({
-    type: "color",
-    value: "#ffffff",
-  });
+  const [setAsDefault, setSetAsDefault] = useState(false);
+
 
   const navigate = useNavigate();
 
@@ -42,35 +41,34 @@ const PresentationEditor = () => {
       .then((data) => {
         if (data.store && data.store[id]) {
           const presentation = data.store[id];
-
+  
           setTitle(presentation.title || "Untitled");
-
           setFontFamily(presentation.fontFamily || "Arial");
-
-          setDefaultBackground(
-            presentation.defaultBackground || {
-              type: "color",
-              value: "#ffffff",
-            }
+  
+          // 加载默认背景
+          const defaultBg = presentation.defaultBackground || {
+            type: "color",
+            value: "#ffffff",
+          };
+          setDefaultBackground(defaultBg);
+  
+          // 应用默认背景到没有背景的幻灯片
+          const loadedSlides = (Array.isArray(presentation.slides) ? presentation.slides : []).map(
+            (slide) => ({
+              ...slide,
+              background: slide.background || defaultBg,
+            })
           );
-
-          setCurrentBackground(
-            presentation.slides?.[currentSlideIndex]?.background || {
-              type: "color",
-              value: "#ffffff",
-            }
-          );
-
-          // 设置幻灯片内容，默认值为空数组
-          setSlides(
-            Array.isArray(presentation.slides) ? presentation.slides : []
-          );
+  
+          setSlides(loadedSlides);
         }
       })
       .catch((error) => {
         console.error("Error loading presentation data:", error);
       });
-  }, [id, currentSlideIndex]);
+  }, [id]);
+  
+  
 
   const [openTextModal, setOpenTextModal] = useState(false); // 新增，用于文本框编辑模态框的状态管理
   const [selectedElement, setSelectedElement] = useState(null); // 新增，当前选中的文本元素，用于编辑特定文本框
@@ -213,10 +211,12 @@ const PresentationEditor = () => {
   };
 
   const handleCreateSlide = () => {
-    const updatedSlides = [
-      ...(Array.isArray(slides) ? slides : []),
-      { textElements: [], imageElements: [] },
-    ]; // 为新幻灯片初始化空的文本元素数组
+    const newSlide = {
+      textElements: [],
+      imageElements: [],
+      background: defaultBackground,  // 使用默认背景
+    };
+    const updatedSlides = [...slides, newSlide];
     setSlides(updatedSlides);
     setCurrentSlideIndex(updatedSlides.length - 1);
 
@@ -320,6 +320,7 @@ const PresentationEditor = () => {
     console.log("Updated slides:", updatedSlides);
 
     setSlides(updatedSlides);
+    
 
     getStore()
       .then((data) => {
@@ -743,6 +744,17 @@ const PresentationEditor = () => {
   const applyBackground = () => {
     const updatedSlides = [...slides];
     updatedSlides[currentSlideIndex].background = currentBackground;
+    if (setAsDefault) {
+      setDefaultBackground(currentBackground);
+  
+      // 将默认背景应用到所有未设置背景的幻灯片
+      updatedSlides.forEach(slide => {
+        if (!slide.background) {
+          slide.background = currentBackground;
+        }
+      });
+    }
+  
     setSlides(updatedSlides);
     setOpenBackgroundModal(false);
 
@@ -771,17 +783,16 @@ const PresentationEditor = () => {
     });
   };
 
-  const applyDefaultBackground = () => {
-    setDefaultBackground(currentBackground);
-    setOpenBackgroundModal(false);
-
+  const setDefaultBackground = (background) => {
+    setCurrentBackground(background);
     getStore().then((data) => {
       if (data.store && data.store[id]) {
-        data.store[id].defaultBackground = currentBackground;
+        data.store[id].defaultBackground = background;
       }
+  
       const userToken = localStorage.getItem("token");
       const url = "http://localhost:5005/store";
-
+  
       fetch(url, {
         method: "PUT",
         headers: {
@@ -791,19 +802,15 @@ const PresentationEditor = () => {
         body: JSON.stringify({ store: data.store }),
       })
         .then((response) => {
-          if (!response.ok)
-            throw new Error("Failed to set default background.");
-          console.log("Default background set successfully!");
+          if (!response.ok) throw new Error("Failed to save default background.");
+          console.log("Default background saved successfully!");
         })
         .catch((error) => {
           console.error("Error:", error);
         });
     });
   };
-
-  const getSlideBackground = (slide) => {
-    return slide.background || defaultBackground;
-  };
+  
 
   return (
     <div style={{ marginTop: "5rem", position: "relative" }}>
@@ -1508,6 +1515,13 @@ const PresentationEditor = () => {
           )}
 
           <Box mt={2} display="flex" justifyContent="flex-end">
+            <Checkbox
+              checked={setAsDefault}
+              onChange={(e) => setSetAsDefault(e.target.checked)}
+              sx={{ mt: 2 }}
+            />
+            <label>Set as default background</label>
+
             <Button onClick={() => setOpenBackgroundModal(false)}>
               Cancel
             </Button>
