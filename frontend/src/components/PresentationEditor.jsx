@@ -1507,8 +1507,8 @@ const PresentationEditor = () => {
             currentBackground.type === "color"
               ? currentBackground.value
               : currentBackground.type === "gradient"
-              ? `linear-gradient(${currentBackground.value})`
-              : `url(${currentBackground.value}) center/cover no-repeat`,
+                ? `linear-gradient(${currentBackground.value})`
+                : `url(${currentBackground.value}) center/cover no-repeat`,
         }}
       >
         {/* <Typography variant="h5" align="center">

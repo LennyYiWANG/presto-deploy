@@ -36,9 +36,9 @@ const SignInForm = ({ setToken }) => {
         setSnackbarMessage('Login successful! Redirecting...');
         setOpenSnackbar(true);
         setTimeout(() => {
-            setToken(token); // 延迟设置 token
-            navigate('/dashboard');
-          }, 1500); 
+          setToken(token); // 延迟设置 token
+          navigate('/dashboard');
+        }, 1500); 
       } else if (response.status === 400) {
         setSeverity('error');
         setSnackbarMessage('Invalid input. Please check your email and password.');

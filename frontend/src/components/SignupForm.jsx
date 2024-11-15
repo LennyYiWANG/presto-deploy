@@ -46,9 +46,9 @@ const SignUpForm = ({ setToken }) => {
         setSnackbarMessage('Registration successful! Redirecting...');
         setOpenSnackbar(true);
         setTimeout(() => {
-            setToken(token); // 延迟设置 token
-            navigate('/dashboard');
-          }, 1500);
+          setToken(token); // 延迟设置 token
+          navigate('/dashboard');
+        }, 1500);
       } else if (response.status === 400) {
         const errorData = await response.json();
         if (errorData.error === 'Email address already registered') {

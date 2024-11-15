@@ -22,18 +22,18 @@ function App() {
   
   return (
     <>
-    <BrowserRouter>
-    {/* <Logout/> */}
-    <Logout token={token} setToken={setToken} />
-    <Routes>
-    <Route path="/" element={<WelcomePage />} />
-    <Route path="/login" element={<SignInForm setToken={setToken} />} />
-    <Route path="/register" element={<SignUpForm setToken={setToken} />} />
-    <Route path="/dashboard" element={<Dashboard setToken={setToken} />} />
-    <Route path="/editor/:id/:slideIndex" element={<PresentationEditor />} />
-    <Route path="/preview/:id/:slideIndex" element={<PresentationPreview />} />
-    </Routes>
-    </BrowserRouter>
+      <BrowserRouter>
+        {/* <Logout/> */}
+        <Logout token={token} setToken={setToken} />
+        <Routes>
+          <Route path="/" element={<WelcomePage />} />
+          <Route path="/login" element={<SignInForm setToken={setToken} />} />
+          <Route path="/register" element={<SignUpForm setToken={setToken} />} />
+          <Route path="/dashboard" element={<Dashboard setToken={setToken} />} />
+          <Route path="/editor/:id/:slideIndex" element={<PresentationEditor />} />
+          <Route path="/preview/:id/:slideIndex" element={<PresentationPreview />} />
+        </Routes>
+      </BrowserRouter>
     </>
   );
 }
