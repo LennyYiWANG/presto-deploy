@@ -352,7 +352,7 @@ const PresentationEditor = () => {
 
   //image element adding
   const [openImageModal, setOpenImageModal] = useState(false); // 控制图像模态框显示
-  const [selectedImage] = useState(null);
+  const [selectedImage] = useState(null); // 当前选择的图像
   const [newImage, setNewImage] = useState({
     width: 50,
     height: 30,
@@ -478,7 +478,7 @@ const PresentationEditor = () => {
   //vedio upload
   // State management for video element
   const [openVideoModal, setOpenVideoModal] = useState(false); // 控制视频模态框显示
-  const [selectedVideo, setSelectedVideo] = useState(null); // 当前选择的视频
+  const [selectedVideo] = useState(null); // 当前选择的视频
   const [newVideo, setNewVideo] = useState({
     width: 50,
     height: 30,
@@ -769,70 +769,97 @@ const PresentationEditor = () => {
   };
 
   return (
-    <div style={{ marginTop: "5rem", position: "relative", padding: "1rem" }}>
-    {/* 返回按钮 */}
-    <Box display="flex" alignItems="center" justifyContent="space-between" mb={3}>
+    <div style={{ marginTop: "5rem", position: "relative" }}>
       <Button
         variant="contained"
         color="secondary"
         onClick={() => navigate("/dashboard")}
-        sx={{ fontWeight: "bold" }}
+        style={{ position: "absolute", top: 0, left: 0 }}
       >
-        Dashboard
+        Back
       </Button>
-      <Typography variant="h4" component="h1" sx={{ fontWeight: "bold", textAlign: "center" }}>
-        {title}
-      </Typography>
-      <Box display="flex" alignItems="center">
+      <Box
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        style={{ marginBottom: "1rem" }}
+      >
+        <Typography variant="h4" component="h1" textAlign="center">
+          {title}
+        </Typography>
         <IconButton
           onClick={handleOpenEditTitle}
           aria-label="edit title"
-          sx={{ color: "secondary.main", mx: 1 }}
+          sx={{ ml: 1 }}
         >
           <EditIcon />
         </IconButton>
         <IconButton
           onClick={handleOpenDelete}
           aria-label="delete presentation"
-          sx={{ color: "error.main", mx: 1 }}
+          color="error"
+          sx={{ ml: 1 }}
         >
           <DeleteIcon />
         </IconButton>
       </Box>
-    </Box>
 
-    {/* 操作按钮 */}
-    <Box display="flex" justifyContent="center" gap={2} flexWrap="wrap" sx={{ mb: 3 }}>
-      <Button variant="outlined" color="primary" onClick={() => setOpenBackgroundModal(true)}>
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={() => setOpenBackgroundModal(true)}
+        sx={{ mx: 2 }}
+      >
         Choose Background
       </Button>
-      <Button variant="outlined" color="primary" onClick={() => setOpenFontModal(true)}>
+
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={() => setOpenFontModal(true)}
+        sx={{ mx: 2 }}
+      >
         Choose Font
+      </Button>
+
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={() => handleOpenTextModal()}
+      >
+        Add Text Box
       </Button>
       <Button
         variant="contained"
         color="primary"
+        onClick={() => handleOpenImageModal()}
+      >
+        Add Image
+      </Button>
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={() => handleOpenVideoModal()}
+      >
+        Add Video
+      </Button>
+
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={() => handleOpenCodeModal()}
+      >
+        Add Code Block
+      </Button>
+
+      <Button
+        variant="contained"
+        color="primary"
         onClick={() => window.open(`/preview/${id}/${currentSlideIndex}`, "_blank")}
+        sx={{ mx: 2 }}
       >
         Preview
       </Button>
-    </Box>
-
-    <Box display="flex" justifyContent="center" gap={2} flexWrap="wrap" sx={{ mb: 3 }}>
-
-      <Button variant="contained" color="secondary" onClick={handleOpenTextModal}>
-        Add Text Box
-      </Button>
-      <Button variant="contained" color="secondary" onClick={handleOpenImageModal}>
-        Add Image
-      </Button>
-      <Button variant="contained" color="secondary" onClick={handleOpenVideoModal}>
-        Add Video
-      </Button>
-      <Button variant="contained" color="secondary" onClick={handleOpenCodeModal}>
-        Add Code Block
-      </Button>
-    </Box>
 
 
       <Modal
@@ -1472,7 +1499,7 @@ const PresentationEditor = () => {
       <div
         style={{
           width: "100%",
-          aspectRatio: "16 / 9", 
+          height: "500px",
           border: "1px solid black",
           marginTop: "1rem",
           position: "relative",
